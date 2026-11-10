@@ -1,17 +1,18 @@
 "use server";
 
 import { randomBytes } from "node:crypto";
-import { eq } from "drizzle-orm";
+import { and, asc, eq, gte, lte } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { isCorrectPassword, isValidSession, SESSION_COOKIE, sessionToken } from "@/lib/auth";
 import { CATEGORY_IDS } from "@/lib/constants";
 import { db } from "@/lib/db";
-import { expenses, legs, shareLinks } from "@/lib/db/schema";
+import { expenses, legs, settings, shareLinks } from "@/lib/db/schema";
 import { isIsoDate } from "@/lib/format";
 import { countryByCode, isCurrencyCode } from "@/lib/places";
 import { fetchRate } from "@/lib/rates";
+import sampleTrip from "@/lib/sample-trip.json";
 
 export type FormState = { error?: string } | undefined;
 
@@ -50,6 +51,37 @@ export async function login(_prev: FormState, formData: FormData): Promise<FormS
     path: "/",
     maxAge: 60 * 60 * 24 * 365,
   });
+  // A fresh install starts with the walkthrough.
+  const [row] = await db.select({ done: settings.setupDoneAt }).from(settings).where(eq(settings.id, 1));
+  redirect(row?.done ? "/" : "/setup");
+}
+
+/** Step one of the walkthrough. An empty name is fine. */
+export async function saveSetupName(formData: FormData) {
+  await requireSession();
+  const name = text(formData, "name").slice(0, 40);
+  await db.insert(settings).values({ id: 1, name }).onConflictDoUpdate({ target: settings.id, set: { name } });
+  redirect("/setup?step=trip");
+}
+
+/** Fills an empty trip with the sample itinerary, to look around before planning your own. */
+export async function loadSampleTrip() {
+  await requireSession();
+  const existing = await db.select({ id: legs.id }).from(legs).limit(1);
+  if (existing.length === 0) await db.insert(legs).values(sampleTrip);
+  revalidatePath("/", "layout");
+  redirect("/setup?step=done");
+}
+
+/** Ends the walkthrough, whether its steps were filled in or skipped. */
+export async function finishSetup() {
+  await requireSession();
+  const setupDoneAt = new Date();
+  await db
+    .insert(settings)
+    .values({ id: 1, setupDoneAt })
+    .onConflictDoUpdate({ target: settings.id, set: { setupDoneAt } });
+  revalidatePath("/", "layout");
   redirect("/");
 }
 
@@ -134,6 +166,52 @@ export async function saveExpense(_prev: FormState, formData: FormData): Promise
   redirect(id === null ? `/?saved=${savedId}` : "/expenses");
 }
 
+/**
+ * Adds a copy of an expense dated today: same amount, currency, category and
+ * note. The trip leg and the exchange rate follow the new date.
+ */
+export async function repeatExpense(formData: FormData) {
+  await requireSession();
+  const id = Number(text(formData, "id"));
+  const dateRaw = text(formData, "date");
+  const date = isIsoDate(dateRaw) ? dateRaw : new Date().toISOString().slice(0, 10);
+
+  const [source] = Number.isInteger(id) ? await db.select().from(expenses).where(eq(expenses.id, id)) : [];
+  if (!source) redirect("/");
+
+  const [leg] = await db
+    .select({ id: legs.id })
+    .from(legs)
+    .where(and(lte(legs.startDate, date), gte(legs.endDate, date)))
+    .orderBy(asc(legs.startDate), asc(legs.id))
+    .limit(1);
+
+  // Without a rate for the new day the rate of the original expense is close
+  // enough, and it can be corrected by editing the copy.
+  const amount = Number(source.amount);
+  const rate =
+    source.currency === "EUR" || source.date === date
+      ? Number(source.rate)
+      : ((await fetchRate(source.currency, date)) ?? Number(source.rate));
+
+  const [row] = await db
+    .insert(expenses)
+    .values({
+      date,
+      amount: source.amount,
+      currency: source.currency,
+      category: source.category,
+      note: source.note,
+      legId: leg?.id ?? null,
+      rate: rate.toFixed(8),
+      amountEur: (Math.round((amount / rate) * 100) / 100).toFixed(2),
+    })
+    .returning({ id: expenses.id });
+
+  revalidatePath("/", "layout");
+  redirect(`/?saved=${row.id}&repeated=1`);
+}
+
 export async function deleteExpense(formData: FormData) {
   await requireSession();
   const id = Number(text(formData, "id"));
@@ -141,7 +219,15 @@ export async function deleteExpense(formData: FormData) {
     await db.delete(expenses).where(eq(expenses.id, id));
   }
   revalidatePath("/", "layout");
-  redirect("/expenses");
+  // Undoing a repeat on the Add screen stays on the Add screen.
+  if (text(formData, "back") === "add") redirect("/");
+  // A delete from the list keeps the filters that were in use.
+  const query = new URLSearchParams();
+  for (const key of ["category", "country"]) {
+    const value = text(formData, key);
+    if (value) query.set(key, value);
+  }
+  redirect(query.size > 0 ? `/expenses?${query}` : "/expenses");
 }
 
 function readLeg(formData: FormData) {
@@ -176,7 +262,8 @@ export async function saveLeg(_prev: FormState, formData: FormData): Promise<For
     await db.insert(legs).values(leg.values);
   }
   revalidatePath("/", "layout");
-  redirect("/trip");
+  // The walkthrough carries on to its last step.
+  redirect(text(formData, "from") === "setup" ? "/setup?step=done" : "/trip");
 }
 
 /** Expenses of a deleted leg stay, as "not tied to a leg". */

@@ -15,6 +15,13 @@
       "when": 1794299689771,
       "tag": "0001_fuzzy_enchantress",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794333172153,
+      "tag": "0002_setup_settings",
+      "breakpoints": true
     }
   ]
 }

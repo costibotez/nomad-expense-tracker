@@ -159,6 +159,14 @@ input:focus-visible {
 .trip-card-stack {
   position: relative;
   padding-top: 14px;
+  /* Keeps the layering below inside the stack. */
+  isolation: isolate;
+}
+
+/* The front card sits above both back cards. Without this the second back
+   card is painted after it and covers the top of the front card. */
+.trip-card-stack > .trip-card {
+  z-index: 1;
 }
 
 .trip-card-stack::before,

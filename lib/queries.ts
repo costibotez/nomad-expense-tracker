@@ -1,9 +1,15 @@
 import { asc, desc, eq } from "drizzle-orm";
 import { db } from "./db";
-import { expenses, legs } from "./db/schema";
+import { expenses, legs, settings } from "./db/schema";
 
 export function getLegs() {
   return db.select().from(legs).orderBy(asc(legs.startDate), asc(legs.id));
+}
+
+/** The single settings row, or undefined before the walkthrough has saved anything. */
+export async function getSettings() {
+  const rows = await db.select().from(settings).where(eq(settings.id, 1));
+  return rows[0];
 }
 
 export const expenseRow = {
