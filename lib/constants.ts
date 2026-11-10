@@ -34,4 +34,3 @@ export const CURRENCIES = [
   { code: "KZT", name: "Kazakh tenge" },
 ] as const;
 
-export const CURRENCY_CODES: string[] = CURRENCIES.map((c) => c.code);

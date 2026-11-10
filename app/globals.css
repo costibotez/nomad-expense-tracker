@@ -100,6 +100,20 @@ textarea {
   min-height: 48px;
 }
 
+/* Safari gives date fields a fixed inner width. This lets them fit their column and read from the left. */
+input[type="date"].field {
+  -webkit-appearance: none;
+  appearance: none;
+  display: block;
+  min-width: 0;
+  text-align: left;
+}
+
+input[type="date"].field::-webkit-date-and-time-value {
+  text-align: left;
+  margin: 0;
+}
+
 .field-dark {
   background: var(--hero-field);
   color: var(--hero-ink);

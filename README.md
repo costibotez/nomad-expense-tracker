@@ -80,7 +80,9 @@ Nine months on the road through nine countries means nine currencies. Every one 
 
 ### 🗺️ Editable itinerary
 - All 14 legs of the trip are loaded the first time the app is built
-- Change the dates, places or default currency of a leg when your plans move
+- Tap a leg to change its **country, places, dates or default currency** when your plans move
+- **Add a leg** for a new country. Every country has its flag, and the currency is suggested for you from more than 160
+- **Delete a leg** you no longer need. Its expenses stay and show as not tied to a leg
 - The current leg is highlighted and every leg shows what it has cost so far
 
 ### 📤 Spreadsheet export
@@ -131,14 +133,13 @@ Nine months on the road through nine countries means nine currencies. Every one 
 | 11 July to 11 August 2027 | 🇰🇿 Kazakhstan | Almaty / Charyn Canyon / Kolsai Lakes / Astana | Kazakh tenge |
 | 12 August 2027 | 🇷🇴 Romania | Bucharest (Return Home) | Romanian leu |
 
-Planning a different trip? Edit `scripts/legs-seed.json` before the first deployment, or change the legs afterwards on the **Trip** screen.
+Planning a different trip? Edit `scripts/legs-seed.json` before the first deployment, or add, change and delete legs afterwards on the **Trip** screen.
 
 ## Roadmap
 
 - Offline entry that syncs when a connection returns, for the Fann Mountains and Song-Kul
 - Budgets per leg and per category with the remaining amount
 - Receipt photos attached to an expense
-- Adding and removing trip legs from the app
 
 ## Screenshots
 

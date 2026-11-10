@@ -86,6 +86,11 @@ export function ExpenseForm({
   const leg = legs.find((l) => l.id === legId) ?? null;
   const currency = currencyChoice ?? leg?.currency ?? "EUR";
 
+  // The trip currencies, plus any other currency a leg or this expense uses.
+  const currencyCodes = [
+    ...new Set([...CURRENCIES.map((c) => c.code), ...legs.map((l) => l.currency), ...(expense ? [expense.currency] : [])]),
+  ];
+
   const lookupKey = `${currency}|${date}`;
   const needsLookup = currency !== "EUR" && rateChoice === null;
 
@@ -151,9 +156,9 @@ export function ExpenseForm({
                 setRateChoice(null);
               }}
             >
-              {CURRENCIES.map((c) => (
-                <option key={c.code} value={c.code}>
-                  {c.code}
+              {currencyCodes.map((code) => (
+                <option key={code} value={code}>
+                  {code}
                 </option>
               ))}
             </select>
@@ -164,7 +169,7 @@ export function ExpenseForm({
             ? "Paid in euro"
             : euro !== null
               ? `About ${formatEuro(euro)}`
-              : CURRENCIES.find((c) => c.code === currency)?.name}
+              : (CURRENCIES.find((c) => c.code === currency)?.name ?? currency)}
         </p>
       </Hero>
 
@@ -209,7 +214,7 @@ export function ExpenseForm({
         />
       </label>
 
-      <div className="grid grid-cols-2 gap-2">
+      <div className="flex flex-col gap-4">
         <label className="flex min-w-0 flex-col gap-1 text-sm font-medium">
           Date
           <input
