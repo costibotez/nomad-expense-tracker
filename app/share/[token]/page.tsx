@@ -26,7 +26,8 @@ export default async function SharePage({ params, searchParams }: PageProps<"/sh
       country={country}
       basePath={`/share/${token}`}
       heading="Trip spending"
-      intro="A read-only view of the trip totals in euro."
+      intro="A read-only view of the trip totals in euro"
+      readOnly
     />
   );
 }

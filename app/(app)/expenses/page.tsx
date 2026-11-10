@@ -1,5 +1,8 @@
 import { and, desc, eq, isNull, type SQL } from "drizzle-orm";
+import { Download } from "lucide-react";
+import { ExpenseFilters } from "@/components/expense-filters";
 import { ExpenseRow } from "@/components/expense-row";
+import { Hero } from "@/components/ui";
 import { CATEGORIES, CATEGORY_IDS } from "@/lib/constants";
 import { expenses, legs } from "@/lib/db/schema";
 import { formatDay, formatEuro } from "@/lib/format";
@@ -38,40 +41,33 @@ export default async function ExpensesPage({ searchParams }: PageProps<"/expense
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex items-end justify-between gap-3">
-        <h1 className="text-2xl font-semibold">Expenses</h1>
-        <a href="/api/export" className="text-sm text-accent underline">
-          Export spreadsheet
-        </a>
-      </div>
+      <Hero
+        title="Expenses"
+        action={
+          <a
+            href="/api/export"
+            download
+            aria-label="Export spreadsheet"
+            className="flex size-11 shrink-0 items-center justify-center rounded-full bg-hero-field text-hero-ink"
+          >
+            <Download size={20} aria-hidden />
+          </a>
+        }
+      >
+        <p className="mt-6 text-xs text-hero-muted">{filtered ? "Matching these filters" : "All expenses"}</p>
+        <p className="tabular text-[40px] leading-tight font-semibold tracking-tight">{formatEuro(total)}</p>
+        <p className="tabular text-sm text-hero-muted">
+          {rows.length} {rows.length === 1 ? "expense" : "expenses"}
+        </p>
+      </Hero>
 
-      <form className="grid grid-cols-[1fr_1fr_auto] gap-2" method="get">
-        <select className="field" name="category" defaultValue={category} aria-label="Category">
-          <option value="">All categories</option>
-          {CATEGORIES.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.label}
-            </option>
-          ))}
-        </select>
-        <select className="field" name="country" defaultValue={country} aria-label="Country">
-          <option value="">All countries</option>
-          {countries.map((c) => (
-            <option key={c} value={c}>
-              {c}
-            </option>
-          ))}
-          <option value={NO_LEG}>Not tied to a leg</option>
-        </select>
-        <button className="min-h-11 rounded-xl border border-line bg-surface px-4 text-sm font-medium">
-          Filter
-        </button>
-      </form>
-
-      <p className="tabular text-sm text-muted">
-        {rows.length} {rows.length === 1 ? "expense" : "expenses"}
-        {filtered ? " matching" : ""} · <strong className="text-ink">{formatEuro(total)}</strong>
-      </p>
+      <ExpenseFilters
+        category={category}
+        country={country}
+        categories={CATEGORIES.map((c) => ({ value: c.id, label: c.label }))}
+        countries={countries.map((c) => ({ value: c, label: c }))}
+        noLegValue={NO_LEG}
+      />
 
       {days.length === 0 && (
         <p className="card px-4 py-8 text-center text-muted">
@@ -81,7 +77,7 @@ export default async function ExpensesPage({ searchParams }: PageProps<"/expense
 
       {days.map((day) => (
         <section key={day.date} aria-label={formatDay(day.date)}>
-          <h2 className="tabular mb-2 flex justify-between text-sm font-medium text-muted">
+          <h2 className="tabular mb-2 flex justify-between px-1 text-sm font-medium text-muted">
             <span>{formatDay(day.date)}</span>
             <span>{formatEuro(day.total)}</span>
           </h2>

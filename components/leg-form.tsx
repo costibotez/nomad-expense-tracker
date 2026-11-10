@@ -8,7 +8,7 @@ import type { FormLeg } from "./expense-form";
 export function LegForm({ leg }: { leg: FormLeg }) {
   const [state, action, pending] = useActionState(updateLeg, undefined);
   return (
-    <form action={action} className="flex flex-col gap-3 border-t border-line p-4">
+    <form action={action} className="flex flex-col gap-3 border-t border-line p-5">
       <input type="hidden" name="id" value={leg.id} />
       <label className="flex flex-col gap-1 text-sm font-medium">
         Places
@@ -42,7 +42,7 @@ export function LegForm({ leg }: { leg: FormLeg }) {
       <button
         type="submit"
         disabled={pending}
-        className="min-h-11 rounded-xl bg-accent font-semibold text-accent-ink disabled:opacity-60"
+        className="min-h-12 rounded-full bg-accent font-semibold text-accent-ink disabled:opacity-60"
       >
         {pending ? "Saving" : "Save leg"}
       </button>

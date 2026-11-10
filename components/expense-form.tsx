@@ -2,6 +2,8 @@
 
 import { useActionState, useEffect, useState, useSyncExternalStore } from "react";
 import { saveExpense } from "@/app/actions";
+import { Hero } from "@/components/ui";
+import { CategoryIcon } from "@/lib/icons";
 import { CATEGORIES, CURRENCIES } from "@/lib/constants";
 import { formatEuro, formatShortDate } from "@/lib/format";
 
@@ -50,10 +52,14 @@ export function ExpenseForm({
   legs,
   expense,
   serverToday,
+  title,
+  headerAction,
 }: {
   legs: FormLeg[];
   expense?: FormExpense;
   serverToday: string;
+  title: string;
+  headerAction?: React.ReactNode;
 }) {
   const [state, action, pending] = useActionState(saveExpense, undefined);
 
@@ -114,17 +120,17 @@ export function ExpenseForm({
   }
 
   return (
-    <form action={action} className="flex flex-col gap-4">
+    <form action={action} className="flex flex-col gap-5">
       {expense && <input type="hidden" name="id" value={expense.id} />}
       <input type="hidden" name="category" value={category} />
 
-      <div className="card p-4">
-        <div className="flex gap-2">
-          <label className="flex min-w-0 flex-1 flex-col gap-1 text-sm font-medium">
-            Amount
+      <Hero title={title} subtitle={leg ? `${leg.flag} ${leg.country}: ${leg.cities}` : "Not tied to a leg"} action={headerAction}>
+        <div className="mt-6 flex items-end gap-3">
+          <label className="min-w-0 flex-1">
+            <span className="block text-xs text-hero-muted">Amount</span>
             <input
-              className="field tabular text-2xl font-semibold"
-              style={{ fontSize: 24 }}
+              className="tabular w-full bg-transparent py-1 text-[44px] leading-tight font-semibold tracking-tight text-hero-ink placeholder:text-hero-ink/30 focus-visible:outline-none"
+              style={{ fontSize: 44 }}
               name="amount"
               inputMode="decimal"
               autoComplete="off"
@@ -134,10 +140,10 @@ export function ExpenseForm({
               required
             />
           </label>
-          <label className="flex w-28 flex-col gap-1 text-sm font-medium">
-            Currency
+          <label className="mb-2 shrink-0">
+            <span className="sr-only">Currency</span>
             <select
-              className="field h-full"
+              className="field field-dark w-auto rounded-full pr-8 font-semibold"
               name="currency"
               value={currency}
               onChange={(e) => {
@@ -153,18 +159,18 @@ export function ExpenseForm({
             </select>
           </label>
         </div>
-        <p className="tabular mt-2 min-h-5 text-sm text-muted" aria-live="polite">
+        <p className="tabular mt-1 min-h-5 text-sm text-hero-muted" aria-live="polite">
           {currency === "EUR"
             ? "Paid in euro"
             : euro !== null
               ? `About ${formatEuro(euro)}`
               : CURRENCIES.find((c) => c.code === currency)?.name}
         </p>
-      </div>
+      </Hero>
 
       <fieldset>
-        <legend className="mb-2 text-sm font-medium">Category</legend>
-        <div className="grid grid-cols-3 gap-2">
+        <legend className="mb-3 px-1 text-sm font-medium">Category</legend>
+        <div className="grid grid-cols-3 gap-x-2 gap-y-4">
           {CATEGORIES.map((c) => {
             const selected = c.id === category;
             return (
@@ -173,22 +179,23 @@ export function ExpenseForm({
                 type="button"
                 aria-pressed={selected}
                 onClick={() => setCategory(c.id)}
-                className={`flex min-h-16 flex-col items-center justify-center gap-1 rounded-xl border px-1 py-2 text-center text-xs leading-tight ${
-                  selected
-                    ? "border-accent bg-accent font-semibold text-accent-ink"
-                    : "border-line bg-surface text-ink"
-                }`}
+                className="flex flex-col items-center gap-2 text-center text-xs leading-tight"
               >
-                <span aria-hidden className="text-lg">
-                  {c.icon}
+                <span
+                  className={`flex size-14 items-center justify-center rounded-full border ${
+                    selected ? "border-accent bg-accent text-accent-ink" : "border-line bg-surface text-ink"
+                  }`}
+                >
+                  <CategoryIcon id={c.id} size={22} />
                 </span>
-                {c.label}
+                <span className={selected ? "font-semibold text-ink" : "text-muted"}>{c.label}</span>
               </button>
             );
           })}
         </div>
       </fieldset>
 
+      <div className="card flex flex-col gap-4 p-4">
       <label className="flex flex-col gap-1 text-sm font-medium">
         Note
         <input
@@ -266,8 +273,10 @@ export function ExpenseForm({
         </label>
       )}
 
+      </div>
+
       {state?.error && (
-        <p role="alert" className="text-sm text-danger">
+        <p role="alert" className="px-1 text-sm text-danger">
           {state.error}
         </p>
       )}
@@ -275,7 +284,7 @@ export function ExpenseForm({
       <button
         type="submit"
         disabled={pending}
-        className="min-h-12 rounded-xl bg-accent text-base font-semibold text-accent-ink disabled:opacity-60"
+        className="min-h-14 rounded-full bg-accent text-base font-semibold text-accent-ink disabled:opacity-60"
       >
         {pending ? "Saving" : expense ? "Save changes" : "Add expense"}
       </button>

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { categoryOf } from "@/lib/constants";
 import { formatAmount, formatEuro } from "@/lib/format";
+import { CategoryIcon } from "@/lib/icons";
 
 export type RowExpense = {
   id: number;
@@ -19,11 +20,11 @@ export function ExpenseRow({ expense, detail }: { expense: RowExpense; detail?: 
   return (
     <Link
       href={`/expenses/${expense.id}`}
-      className="flex min-h-14 items-center gap-3 px-4 py-2"
+      className="flex min-h-16 items-center gap-3 px-4 py-2.5"
       aria-label={`Edit ${category.label} ${formatEuro(Number(expense.amountEur))}`}
     >
-      <span aria-hidden className="text-xl">
-        {category.icon}
+      <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-line text-ink">
+        <CategoryIcon id={category.id} size={18} />
       </span>
       <span className="min-w-0 flex-1">
         <span className="block truncate text-sm font-medium">

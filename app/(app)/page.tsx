@@ -19,22 +19,20 @@ export default async function AddPage({ searchParams }: PageProps<"/">) {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-semibold">Add expense</h1>
+      {/* The key gives a clean form after each save. */}
+      <ExpenseForm key={saved?.id ?? "new"} legs={legs} serverToday={serverToday()} title="Add expense" />
 
       {saved && (
-        <p role="status" className="card tabular border-accent px-4 py-3 text-sm">
+        <p role="status" className="card tabular px-5 py-3 text-sm">
           Saved {categoryOf(saved.category).label.toLowerCase()}:{" "}
           <strong>{formatAmount(Number(saved.amount), saved.currency)}</strong>
           {saved.currency !== "EUR" && ` (${formatEuro(Number(saved.amountEur))})`}
         </p>
       )}
 
-      {/* The key gives a clean form after each save. */}
-      <ExpenseForm key={saved?.id ?? "new"} legs={legs} serverToday={serverToday()} />
-
       {recent.length > 0 && (
         <section aria-labelledby="recent-heading">
-          <h2 id="recent-heading" className="mb-2 text-sm font-medium text-muted">
+          <h2 id="recent-heading" className="mb-2 px-1 text-sm font-medium text-muted">
             Recently added
           </h2>
           <ul className="card divide-y divide-line">

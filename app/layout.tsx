@@ -4,7 +4,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Nomad Expenses",
   description: "Track travel spending across countries and currencies.",
-  appleWebApp: { capable: true, title: "Expenses", statusBarStyle: "default" },
+  appleWebApp: { capable: true, title: "Expenses", statusBarStyle: "black-translucent" },
   robots: { index: false, follow: false },
 };
 
@@ -13,8 +13,8 @@ export const viewport: Viewport = {
   initialScale: 1,
   viewportFit: "cover",
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f4f4f2" },
-    { media: "(prefers-color-scheme: dark)", color: "#111110" },
+    { media: "(prefers-color-scheme: light)", color: "#0a0a0a" },
+    { media: "(prefers-color-scheme: dark)", color: "#161616" },
   ],
 };
 

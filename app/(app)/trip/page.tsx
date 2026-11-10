@@ -1,7 +1,10 @@
 import { desc, sql } from "drizzle-orm";
+import { Download, Link2, LogOut } from "lucide-react";
 import { createShareLink, logout } from "@/app/actions";
 import { LegForm } from "@/components/leg-form";
 import { ShareLinkRow } from "@/components/share-link-row";
+import { Hero, TripCard } from "@/components/ui";
+import { CURRENCIES } from "@/lib/constants";
 import { db } from "@/lib/db";
 import { expenses, shareLinks } from "@/lib/db/schema";
 import { daysBetween, formatEuro, formatShortDate } from "@/lib/format";
@@ -22,32 +25,71 @@ export default async function TripPage() {
   const spent = new Map(totals.map((t) => [t.legId, Number(t.total)]));
   const today = serverToday();
 
+  // The card shows the leg you are in, or the next one before the trip starts.
+  const current = legs.find((l) => l.startDate <= today && today <= l.endDate);
+  const featured = current ?? legs.find((l) => l.startDate > today) ?? legs[legs.length - 1];
+  const countries = new Set(legs.map((l) => l.country)).size;
+  const tripDays = legs.length > 0 ? daysBetween(legs[0].startDate, legs[legs.length - 1].endDate) : 0;
+
   return (
     <div className="flex flex-col gap-5">
-      <h1 className="text-2xl font-semibold">Trip</h1>
-      <p className="text-sm text-muted">
+      <Hero
+        title="Trip"
+        subtitle={`${legs.length} legs · ${countries} countries · ${tripDays} days`}
+      >
+        {featured && (
+          <>
+            <div className="mt-5">
+              <TripCard
+                label={`${featured.flag} ${featured.country}`}
+                name={featured.cities}
+                mark={featured.currency}
+                markCaption={CURRENCIES.find((c) => c.code === featured.currency)?.name ?? ""}
+                stacked
+              />
+            </div>
+            <div className="mt-4 flex items-end justify-between gap-3">
+              <div className="min-w-0">
+                <p className="font-semibold">{current ? "Current leg" : "Next leg"}</p>
+                <p className="tabular truncate text-xs text-hero-muted">
+                  {formatShortDate(featured.startDate)} to {formatShortDate(featured.endDate)}
+                  {current
+                    ? ` · ${daysBetween(today, featured.endDate) - 1} days left`
+                    : ` · starts in ${daysBetween(today, featured.startDate) - 1} days`}
+                </p>
+              </div>
+              <p className="tabular shrink-0 text-sm font-semibold">{formatEuro(spent.get(featured.id) ?? 0)}</p>
+            </div>
+          </>
+        )}
+      </Hero>
+
+      <p className="px-1 text-sm text-muted">
         New expenses pick the leg and currency that match their date. Open a leg to change its
         dates if your plans move.
       </p>
 
-      <ol className="flex flex-col gap-2">
+      <ol className="card divide-y divide-line overflow-hidden">
         {legs.map((leg) => {
-          const current = leg.startDate <= today && today <= leg.endDate;
+          const isCurrent = leg.id === current?.id;
           const days = daysBetween(leg.startDate, leg.endDate);
           return (
-            <li key={leg.id} className={`card overflow-hidden ${current ? "border-accent" : ""}`}>
+            <li key={leg.id}>
               <details>
                 <summary className="flex cursor-pointer list-none items-center gap-3 px-4 py-3">
-                  <span aria-hidden className="text-2xl">
+                  <span
+                    aria-hidden
+                    className={`flex size-11 shrink-0 items-center justify-center rounded-xl border text-xl ${
+                      isCurrent ? "border-accent" : "border-line"
+                    }`}
+                  >
                     {leg.flag}
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block text-sm font-semibold">
+                    <span className="flex items-center gap-2 text-sm font-semibold">
                       {leg.country}
-                      {current && (
-                        <span className="ml-2 rounded-full bg-accent px-2 py-0.5 text-xs text-accent-ink">
-                          Now
-                        </span>
+                      {isCurrent && (
+                        <span className="rounded-full bg-accent px-2 py-0.5 text-[10px] text-accent-ink">Now</span>
                       )}
                     </span>
                     <span className="block truncate text-xs text-muted">{leg.cities}</span>
@@ -58,9 +100,7 @@ export default async function TripPage() {
                       · {days} {days === 1 ? "day" : "days"} · {leg.currency}
                     </span>
                   </span>
-                  <span className="tabular text-sm font-semibold">
-                    {formatEuro(spent.get(leg.id) ?? 0)}
-                  </span>
+                  <span className="tabular text-sm font-semibold">{formatEuro(spent.get(leg.id) ?? 0)}</span>
                 </summary>
                 <LegForm leg={leg} />
               </details>
@@ -69,17 +109,24 @@ export default async function TripPage() {
         })}
       </ol>
 
-      <section aria-labelledby="share-heading" className="flex flex-col gap-2">
-        <h2 id="share-heading" className="text-lg font-semibold">
-          Share
-        </h2>
-        <p className="text-sm text-muted">
-          A share link opens a read-only page with the trip totals and charts. It needs no
-          password and does not show single expenses or notes. Anyone who has the link can open
-          it until you switch it off.
-        </p>
+      <section id="share" aria-labelledby="share-heading" className="card scroll-mt-4 overflow-hidden">
+        <div className="flex gap-3 p-5">
+          <span className="flex size-11 shrink-0 items-center justify-center rounded-full border border-line">
+            <Link2 size={20} strokeWidth={1.75} aria-hidden />
+          </span>
+          <div>
+            <h2 id="share-heading" className="font-semibold">
+              Share
+            </h2>
+            <p className="mt-1 text-sm text-muted">
+              A share link opens a read-only page with the trip totals and charts. It needs no
+              password and does not show single expenses or notes. Anyone who has the link can
+              open it until you switch it off.
+            </p>
+          </div>
+        </div>
         {links.length > 0 && (
-          <ul className="card divide-y divide-line">
+          <ul className="divide-y divide-line border-t border-line">
             {links.map((link) => (
               <ShareLinkRow
                 key={link.id}
@@ -90,8 +137,8 @@ export default async function TripPage() {
             ))}
           </ul>
         )}
-        <form action={createShareLink}>
-          <button className="min-h-12 w-full rounded-xl border border-line bg-surface font-medium">
+        <form action={createShareLink} className="border-t border-line p-4">
+          <button className="min-h-12 w-full rounded-full bg-accent font-semibold text-accent-ink">
             Create a share link
           </button>
         </form>
@@ -100,12 +147,15 @@ export default async function TripPage() {
       <div className="flex flex-col gap-2">
         <a
           href="/api/export"
-          className="flex min-h-12 items-center justify-center rounded-xl border border-line bg-surface font-medium"
+          download
+          className="flex min-h-14 items-center justify-center gap-2 rounded-full border border-line bg-surface font-medium"
         >
+          <Download size={18} aria-hidden />
           Export all expenses as a spreadsheet
         </a>
         <form action={logout}>
-          <button className="min-h-12 w-full rounded-xl border border-line font-medium text-muted">
+          <button className="flex min-h-14 w-full items-center justify-center gap-2 rounded-full font-medium text-muted">
+            <LogOut size={18} aria-hidden />
             Sign out
           </button>
         </form>
