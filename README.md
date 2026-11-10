@@ -158,6 +158,10 @@ The amounts below are sample data.
 |---|---|---|
 | ![Sign in screen with the trip card](docs/screenshots/login.png) | ![Share view: the read-only totals page behind a share link](docs/screenshots/share.png) | ![Overview in dark mode](docs/screenshots/dashboard-dark.png) |
 
+| Repeat an expense |
+|---|
+| <img src="docs/screenshots/repeat.png" width="280" alt="Add expense, lower half: recent expenses with a repeat button on each row and the Added again message with Undo" /> |
+
 ## Development
 
 - Next.js 16 with the App Router, React 19, TypeScript and Tailwind CSS 4. Data access uses Drizzle on Postgres. Icons come from Lucide.
