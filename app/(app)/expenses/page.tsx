@@ -2,8 +2,9 @@ import { and, desc, eq, isNull, type SQL } from "drizzle-orm";
 import { Download } from "lucide-react";
 import { ExpenseFilters } from "@/components/expense-filters";
 import { ExpenseRow } from "@/components/expense-row";
+import { SwipeToDelete } from "@/components/swipe-to-delete";
 import { Hero } from "@/components/ui";
-import { CATEGORIES, CATEGORY_IDS } from "@/lib/constants";
+import { CATEGORIES, CATEGORY_IDS, categoryOf } from "@/lib/constants";
 import { expenses, legs } from "@/lib/db/schema";
 import { formatDay, formatEuro } from "@/lib/format";
 import { expensesWithLeg, getLegs, NO_LEG } from "@/lib/queries";
@@ -69,6 +70,10 @@ export default async function ExpensesPage({ searchParams }: PageProps<"/expense
         noLegValue={NO_LEG}
       />
 
+      {days.length > 0 && (
+        <p className="-mb-2 px-1 text-xs text-muted">Swipe an expense to the left to delete it.</p>
+      )}
+
       {days.length === 0 && (
         <p className="card px-4 py-8 text-center text-muted">
           {filtered ? "Nothing matches these filters." : "No expenses yet. Add your first one."}
@@ -81,10 +86,17 @@ export default async function ExpensesPage({ searchParams }: PageProps<"/expense
             <span>{formatDay(day.date)}</span>
             <span>{formatEuro(day.total)}</span>
           </h2>
-          <ul className="card divide-y divide-line">
+          <ul className="card divide-y divide-line overflow-hidden">
             {day.rows.map((e) => (
               <li key={e.id}>
-                <ExpenseRow expense={e} />
+                <SwipeToDelete
+                  id={e.id}
+                  label={`Delete ${categoryOf(e.category).label.toLowerCase()} ${formatEuro(Number(e.amountEur))}`}
+                  category={category}
+                  country={country}
+                >
+                  <ExpenseRow expense={e} />
+                </SwipeToDelete>
               </li>
             ))}
           </ul>

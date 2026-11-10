@@ -188,7 +188,14 @@ export async function deleteExpense(formData: FormData) {
   }
   revalidatePath("/", "layout");
   // Undoing a repeat on the Add screen stays on the Add screen.
-  redirect(text(formData, "back") === "add" ? "/" : "/expenses");
+  if (text(formData, "back") === "add") redirect("/");
+  // A delete from the list keeps the filters that were in use.
+  const query = new URLSearchParams();
+  for (const key of ["category", "country"]) {
+    const value = text(formData, key);
+    if (value) query.set(key, value);
+  }
+  redirect(query.size > 0 ? `/expenses?${query}` : "/expenses");
 }
 
 function readLeg(formData: FormData) {

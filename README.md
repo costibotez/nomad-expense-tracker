@@ -57,6 +57,7 @@ Nine months on the road through nine countries means nine currencies. Every one 
 - Nine categories: flights, accommodation, food, local transport, activities, visas and insurance, shopping, health and other
 - A live euro preview while you type, plus the five most recent expenses under the form
 - **Repeat in one tap**: each recent expense has a repeat button that adds it again dated today, with the leg and rate for the new day. An **Undo** link covers a slip of the thumb
+- **Swipe to delete**: swipe an expense to the left in the list to uncover a delete button. The swipe alone removes nothing
 
 ### 💱 Currency conversion that never drifts
 - Eleven currencies: euro, dollar, Romanian leu, Thai baht, Vietnamese dong, Japanese yen, Chinese yuan, Uzbek som, Tajik somoni, Kyrgyz som and Kazakh tenge
