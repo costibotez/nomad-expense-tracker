@@ -1,3 +1,4 @@
+import { routes } from "@/lib/routes";
 import { desc, sql } from "drizzle-orm";
 import { Download, Link2, LogOut, Plus } from "lucide-react";
 import { createShareLink, logout } from "@/app/actions";
@@ -166,7 +167,7 @@ export default async function TripPage() {
 
       <div className="flex flex-col gap-2">
         <a
-          href="/api/export"
+          href={routes.export}
           download
           className="flex min-h-14 items-center justify-center gap-2 rounded-full border border-line bg-surface font-medium"
         >

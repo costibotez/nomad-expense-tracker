@@ -1,14 +1,15 @@
 "use client";
 
+import { routes } from "@/lib/routes";
 import { ChartPie, Map, Plus, ReceiptText } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const ITEMS = [
-  { href: "/dashboard", label: "Overview", Icon: ChartPie },
-  { href: "/expenses", label: "Expenses", Icon: ReceiptText },
-  { href: "/", label: "Add expense", Icon: Plus },
-  { href: "/trip", label: "Trip", Icon: Map },
+  { href: routes.overview, label: "Overview", Icon: ChartPie },
+  { href: routes.expenses, label: "Expenses", Icon: ReceiptText },
+  { href: routes.app, label: "Add expense", Icon: Plus },
+  { href: routes.trip, label: "Trip", Icon: Map },
 ];
 
 export function Nav() {
@@ -23,7 +24,7 @@ export function Nav() {
         style={{ border: "1px solid var(--pill-line)" }}
       >
         {ITEMS.map(({ href, label, Icon }) => {
-          const active = href === "/" ? pathname === "/" : pathname.startsWith(href);
+          const active = href === routes.app ? pathname === routes.app : pathname.startsWith(href);
           return (
             <li key={href}>
               <Link

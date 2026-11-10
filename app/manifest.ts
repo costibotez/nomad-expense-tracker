@@ -1,3 +1,4 @@
+import { routes } from "@/lib/routes";
 import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
@@ -5,7 +6,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "Nomad Expenses",
     short_name: "Expenses",
     description: "Track travel spending across countries and currencies.",
-    start_url: "/",
+    start_url: routes.app,
     display: "standalone",
     background_color: "#0a0a0a",
     theme_color: "#0a0a0a",

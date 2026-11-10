@@ -101,7 +101,7 @@ Nine months on the road through nine countries means nine currencies. Every one 
 - **One password** protects every page and every data route. The only exception is a share link you created yourself
 - Your data lives in your own Postgres database and nowhere else
 - No analytics, no trackers and no third party accounts. The only outside requests are the exchange rate lookups, which carry a currency and a date and nothing about you
-- Search engines are told not to index the site
+- Search engines can index the public landing page; the tracker and share views request no indexing
 
 ### 📱 Feels like an app
 - Add it to your phone home screen and it opens full screen with its own icon
@@ -180,17 +180,19 @@ npm run dev
 - **Exchange rates** come from the fawazahmed0 currency data set, first through jsDelivr and then through Cloudflare Pages, with open.er-api.com as the last fallback. See `lib/rates.ts`.
 
 ```
-proxy.ts               Password gate in front of every page and data route
+proxy.ts               Password gate for the tracker and data routes
 app/
-  (app)/               Add, Expenses, Overview and Trip screens
+  page.tsx             Public landing page
+  app/(shell)/         Add, Expenses, Overview and Trip screens
   share/[token]/       Public read-only totals behind a share link
-  login/               Sign-in page
-  setup/               First run walkthrough: your name and your first trip leg
+  app/login/           Sign-in page
+  app/setup/           First run walkthrough: your name and your first trip leg
   api/rate/            Rate lookup used by the expense form
   api/export/          Spreadsheet export
   actions.ts           Server actions: sign in, expenses, legs and share links
 components/            Card layout pieces, card carousel, expense form, overview, charts, navigation
 lib/
+  routes.ts            Shared tracker routes
   db/                  Drizzle schema and database client
   rates.ts             Exchange rate lookup with three sources
   constants.ts         Categories and currencies
