@@ -1,0 +1,16 @@
+[
+  { "country": "Thailand", "flag": "🇹🇭", "cities": "Chiang Mai", "startDate": "2026-12-01", "endDate": "2026-12-31", "currency": "THB" },
+  { "country": "Thailand", "flag": "🇹🇭", "cities": "Chiang Mai", "startDate": "2027-01-01", "endDate": "2027-01-31", "currency": "THB" },
+  { "country": "Vietnam", "flag": "🇻🇳", "cities": "Da Nang / Hoi An", "startDate": "2027-02-01", "endDate": "2027-02-14", "currency": "VND" },
+  { "country": "Vietnam", "flag": "🇻🇳", "cities": "Ho Chi Minh City", "startDate": "2027-02-15", "endDate": "2027-02-28", "currency": "VND" },
+  { "country": "Japan", "flag": "🇯🇵", "cities": "Tokyo / Kyoto / Osaka", "startDate": "2027-03-01", "endDate": "2027-03-31", "currency": "JPY" },
+  { "country": "China", "flag": "🇨🇳", "cities": "Beijing", "startDate": "2027-04-01", "endDate": "2027-04-07", "currency": "CNY" },
+  { "country": "China", "flag": "🇨🇳", "cities": "Zhangjiajie (Avatar Mountains)", "startDate": "2027-04-08", "endDate": "2027-04-13", "currency": "CNY" },
+  { "country": "China", "flag": "🇨🇳", "cities": "Xi'an", "startDate": "2027-04-14", "endDate": "2027-04-19", "currency": "CNY" },
+  { "country": "China", "flag": "🇨🇳", "cities": "Urumqi / Turpan", "startDate": "2027-04-20", "endDate": "2027-04-30", "currency": "CNY" },
+  { "country": "Uzbekistan", "flag": "🇺🇿", "cities": "Tashkent / Samarkand / Bukhara / Khiva", "startDate": "2027-05-01", "endDate": "2027-05-20", "currency": "UZS" },
+  { "country": "Tajikistan", "flag": "🇹🇯", "cities": "Dushanbe / Fann Mountains / Iskanderkul", "startDate": "2027-05-21", "endDate": "2027-06-10", "currency": "TJS" },
+  { "country": "Kyrgyzstan", "flag": "🇰🇬", "cities": "Bishkek / Issyk-Kul / Karakol / Song-Kul", "startDate": "2027-06-11", "endDate": "2027-07-10", "currency": "KGS" },
+  { "country": "Kazakhstan", "flag": "🇰🇿", "cities": "Almaty / Charyn Canyon / Kolsai Lakes / Astana", "startDate": "2027-07-11", "endDate": "2027-08-11", "currency": "KZT" },
+  { "country": "Romania", "flag": "🇷🇴", "cities": "Bucharest (Return Home)", "startDate": "2027-08-12", "endDate": "2027-08-12", "currency": "RON" }
+]
