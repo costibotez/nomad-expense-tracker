@@ -1,5 +1,6 @@
 "use server";
 
+import { randomBytes } from "node:crypto";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
@@ -7,7 +8,7 @@ import { redirect } from "next/navigation";
 import { isCorrectPassword, isValidSession, SESSION_COOKIE, sessionToken } from "@/lib/auth";
 import { CATEGORY_IDS, CURRENCY_CODES } from "@/lib/constants";
 import { db } from "@/lib/db";
-import { expenses, legs } from "@/lib/db/schema";
+import { expenses, legs, shareLinks } from "@/lib/db/schema";
 import { isIsoDate } from "@/lib/format";
 import { fetchRate } from "@/lib/rates";
 
@@ -158,4 +159,20 @@ export async function updateLeg(_prev: FormState, formData: FormData): Promise<F
   await db.update(legs).set({ cities, startDate, endDate, currency }).where(eq(legs.id, id));
   revalidatePath("/", "layout");
   redirect("/trip");
+}
+
+export async function createShareLink() {
+  await requireSession();
+  // 192 random bits, so a link cannot be guessed.
+  await db.insert(shareLinks).values({ token: randomBytes(24).toString("base64url") });
+  revalidatePath("/trip");
+}
+
+export async function revokeShareLink(formData: FormData) {
+  await requireSession();
+  const id = Number(text(formData, "id"));
+  if (Number.isInteger(id)) {
+    await db.delete(shareLinks).where(eq(shareLinks.id, id));
+  }
+  revalidatePath("/trip");
 }

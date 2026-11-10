@@ -1,13 +1,14 @@
-import { sql } from "drizzle-orm";
-import { logout } from "@/app/actions";
+import { desc, sql } from "drizzle-orm";
+import { createShareLink, logout } from "@/app/actions";
 import { LegForm } from "@/components/leg-form";
+import { ShareLinkRow } from "@/components/share-link-row";
 import { db } from "@/lib/db";
-import { expenses } from "@/lib/db/schema";
+import { expenses, shareLinks } from "@/lib/db/schema";
 import { daysBetween, formatEuro, formatShortDate } from "@/lib/format";
 import { getLegs, serverToday } from "@/lib/queries";
 
 export default async function TripPage() {
-  const [legs, totals] = await Promise.all([
+  const [legs, totals, links] = await Promise.all([
     getLegs(),
     db
       .select({
@@ -16,6 +17,7 @@ export default async function TripPage() {
       })
       .from(expenses)
       .groupBy(expenses.legId),
+    db.select().from(shareLinks).orderBy(desc(shareLinks.createdAt)),
   ]);
   const spent = new Map(totals.map((t) => [t.legId, Number(t.total)]));
   const today = serverToday();
@@ -66,6 +68,34 @@ export default async function TripPage() {
           );
         })}
       </ol>
+
+      <section aria-labelledby="share-heading" className="flex flex-col gap-2">
+        <h2 id="share-heading" className="text-lg font-semibold">
+          Share
+        </h2>
+        <p className="text-sm text-muted">
+          A share link opens a read-only page with the trip totals and charts. It needs no
+          password and does not show single expenses or notes. Anyone who has the link can open
+          it until you switch it off.
+        </p>
+        {links.length > 0 && (
+          <ul className="card divide-y divide-line">
+            {links.map((link) => (
+              <ShareLinkRow
+                key={link.id}
+                id={link.id}
+                token={link.token}
+                created={formatShortDate(link.createdAt.toISOString().slice(0, 10))}
+              />
+            ))}
+          </ul>
+        )}
+        <form action={createShareLink}>
+          <button className="min-h-12 w-full rounded-xl border border-line bg-surface font-medium">
+            Create a share link
+          </button>
+        </form>
+      </section>
 
       <div className="flex flex-col gap-2">
         <a

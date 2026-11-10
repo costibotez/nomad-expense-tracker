@@ -86,8 +86,14 @@ Nine months on the road through nine countries means nine currencies. Every one 
 - One file with every expense: date, country, places, category, note, amount paid, currency, rate and amount in euro
 - Opens directly in Excel, Numbers and Google Sheets
 
+### 🔗 Read-only share links
+- Create a unique link on the **Trip** screen and send it to family or friends
+- The link opens the trip totals and charts **without a password** and without any way to add or change data
+- It shows totals only. Single expenses, notes and the export stay private
+- Create as many links as you like and switch any of them off at any time
+
 ### 🔒 Private by design
-- **One password** protects every page and every data route
+- **One password** protects every page and every data route. The only exception is a share link you created yourself
 - Your data lives in your own Postgres database and nowhere else
 - No analytics, no trackers and no third party accounts. The only outside requests are the exchange rate lookups, which carry a currency and a date and nothing about you
 - Search engines are told not to index the site
@@ -140,9 +146,13 @@ The amounts below are sample data.
 |---|---|---|
 | ![Add expense: amount, currency, category buttons and the rate for the day](docs/screenshots/add.png) | ![Expenses: a list grouped by day with filters and daily totals](docs/screenshots/expenses.png) | ![Dashboard: trip total, country chips and totals by category](docs/screenshots/dashboard.png) |
 
-| By month and by country | Trip | Dark mode |
+| By month and by country | Trip | Share view |
 |---|---|---|
-| ![Dashboard: spending by month, by country and by trip leg](docs/screenshots/dashboard-breakdown.png) | ![Trip: every leg with dates, currency and what it has cost](docs/screenshots/trip.png) | ![Dashboard in dark mode](docs/screenshots/dashboard-dark.png) |
+| ![Dashboard: spending by month, by country and by trip leg](docs/screenshots/dashboard-breakdown.png) | ![Trip: every leg with dates, currency and what it has cost](docs/screenshots/trip.png) | ![Share view: the read-only totals page behind a share link](docs/screenshots/share.png) |
+
+| Dark mode |
+|---|
+| <img src="docs/screenshots/dashboard-dark.png" alt="Dashboard in dark mode" width="280" /> |
 
 ## Development
 
@@ -164,11 +174,12 @@ npm run dev
 proxy.ts               Password gate in front of every page and data route
 app/
   (app)/               Add, Expenses, Dashboard and Trip screens
+  share/[token]/       Public read-only totals behind a share link
   login/               Sign-in page
   api/rate/            Rate lookup used by the expense form
   api/export/          Spreadsheet export
-  actions.ts           Server actions: sign in, save and delete expenses, edit legs
-components/            Expense form, charts, navigation
+  actions.ts           Server actions: sign in, expenses, legs and share links
+components/            Expense form, dashboard view, charts, navigation
 lib/
   db/                  Drizzle schema and database client
   rates.ts             Exchange rate lookup with three sources

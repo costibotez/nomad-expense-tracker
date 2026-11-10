@@ -29,5 +29,12 @@ export const expenses = pgTable(
   (t) => [index("expenses_date_idx").on(t.date), index("expenses_leg_idx").on(t.legId)],
 );
 
+/** Each row is one read-only link to the totals. Deleting the row switches the link off. */
+export const shareLinks = pgTable("share_links", {
+  id: serial("id").primaryKey(),
+  token: text("token").notNull().unique(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export type Leg = typeof legs.$inferSelect;
 export type Expense = typeof expenses.$inferSelect;
