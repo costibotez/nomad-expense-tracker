@@ -9,7 +9,8 @@ export function proxy(request: NextRequest) {
   if (pathname === "/login") {
     return signedIn ? NextResponse.redirect(new URL("/", request.url)) : NextResponse.next();
   }
-  if (signedIn) return NextResponse.next();
+  // Share links are public on purpose. The page itself checks the token.
+  if (signedIn || pathname.startsWith("/share/")) return NextResponse.next();
 
   if (pathname.startsWith("/api/")) {
     return NextResponse.json({ error: "Not signed in" }, { status: 401 });

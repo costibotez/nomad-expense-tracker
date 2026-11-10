@@ -8,6 +8,13 @@
       "when": 1794297679183,
       "tag": "0000_superb_prodigy",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1794299689771,
+      "tag": "0001_fuzzy_enchantress",
+      "breakpoints": true
     }
   ]
 }
