@@ -1,7 +1,7 @@
 "use server";
 
 import { randomBytes } from "node:crypto";
-import { eq } from "drizzle-orm";
+import { and, asc, eq, gte, lte } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
@@ -134,6 +134,52 @@ export async function saveExpense(_prev: FormState, formData: FormData): Promise
   redirect(id === null ? `/?saved=${savedId}` : "/expenses");
 }
 
+/**
+ * Adds a copy of an expense dated today: same amount, currency, category and
+ * note. The trip leg and the exchange rate follow the new date.
+ */
+export async function repeatExpense(formData: FormData) {
+  await requireSession();
+  const id = Number(text(formData, "id"));
+  const dateRaw = text(formData, "date");
+  const date = isIsoDate(dateRaw) ? dateRaw : new Date().toISOString().slice(0, 10);
+
+  const [source] = Number.isInteger(id) ? await db.select().from(expenses).where(eq(expenses.id, id)) : [];
+  if (!source) redirect("/");
+
+  const [leg] = await db
+    .select({ id: legs.id })
+    .from(legs)
+    .where(and(lte(legs.startDate, date), gte(legs.endDate, date)))
+    .orderBy(asc(legs.startDate), asc(legs.id))
+    .limit(1);
+
+  // Without a rate for the new day the rate of the original expense is close
+  // enough, and it can be corrected by editing the copy.
+  const amount = Number(source.amount);
+  const rate =
+    source.currency === "EUR" || source.date === date
+      ? Number(source.rate)
+      : ((await fetchRate(source.currency, date)) ?? Number(source.rate));
+
+  const [row] = await db
+    .insert(expenses)
+    .values({
+      date,
+      amount: source.amount,
+      currency: source.currency,
+      category: source.category,
+      note: source.note,
+      legId: leg?.id ?? null,
+      rate: rate.toFixed(8),
+      amountEur: (Math.round((amount / rate) * 100) / 100).toFixed(2),
+    })
+    .returning({ id: expenses.id });
+
+  revalidatePath("/", "layout");
+  redirect(`/?saved=${row.id}&repeated=1`);
+}
+
 export async function deleteExpense(formData: FormData) {
   await requireSession();
   const id = Number(text(formData, "id"));
@@ -141,7 +187,8 @@ export async function deleteExpense(formData: FormData) {
     await db.delete(expenses).where(eq(expenses.id, id));
   }
   revalidatePath("/", "layout");
-  redirect("/expenses");
+  // Undoing a repeat on the Add screen stays on the Add screen.
+  redirect(text(formData, "back") === "add" ? "/" : "/expenses");
 }
 
 function readLeg(formData: FormData) {
