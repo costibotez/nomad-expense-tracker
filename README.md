@@ -46,7 +46,7 @@
 Nine months on the road through nine countries means nine currencies. Every one of them makes the same question harder: *"what has this trip actually cost so far?"* Nomad Expenses answers it from data you enter in seconds:
 
 - You pay 320 baht for dinner in Chiang Mai. You type the amount, tap **Food** and save. The app already knows you are in Thailand, already picked baht and already converted it to euro at the rate for that day.
-- Months later in Almaty you open the dashboard and see flights, accommodation, food and everything else as euro totals, for the whole trip or for a single country.
+- Months later in Almaty you open the overview and see flights, accommodation, food and everything else as euro totals, for the whole trip or for a single country.
 
 ## What the app includes
 
@@ -69,12 +69,13 @@ Nine months on the road through nine countries means nine currencies. Every one 
 - Tap any expense to edit or delete it
 - Each row shows both the amount you paid and its value in euro
 
-### 📊 Dashboard
-- **Trip total** with the number of expenses and the average cost per day once the trip is under way
-- **By category**: how much went to flights, accommodation, food and the rest, with the share of each
+### 💳 Overview in a card layout
+- A **silver card for the whole trip and one for each country**, each showing its local currency. Swipe between them and every number below follows the card in front
+- Round shortcuts under the card to add an expense, open the list, export or share
+- **Spent so far** with the cost per day and a progress bar for the days of the trip or the country
+- **By category**: a segmented bar plus a list with the amount and share of each category
 - **By month**: spending over time
 - **By country** and **by trip leg**, with a cost per day for each leg
-- Country chips filter the category and month charts to a single country
 - Light and dark mode follow your phone setting
 
 ### 🗺️ Editable itinerary
@@ -100,7 +101,8 @@ Nine months on the road through nine countries means nine currencies. Every one 
 
 ### 📱 Feels like an app
 - Add it to your phone home screen and it opens full screen with its own icon
-- Large touch targets and a bottom navigation bar made for one-handed use
+- Large touch targets and a floating navigation bar made for one-handed use
+- A monochrome card design with line icons, built to look at home next to a banking app
 
 ## ⚡ Quick start (under 5 minutes)
 
@@ -142,21 +144,21 @@ Planning a different trip? Edit `scripts/legs-seed.json` before the first deploy
 
 The amounts below are sample data.
 
-| Add expense | Expenses | Dashboard |
+| Overview | One country | Categories and months |
 |---|---|---|
-| ![Add expense: amount, currency, category buttons and the rate for the day](docs/screenshots/add.png) | ![Expenses: a list grouped by day with filters and daily totals](docs/screenshots/expenses.png) | ![Dashboard: trip total, country chips and totals by category](docs/screenshots/dashboard.png) |
+| ![Overview: the whole trip card, round shortcuts and the amount spent so far](docs/screenshots/dashboard.png) | ![Overview after swiping to the Japan card](docs/screenshots/dashboard-country.png) | ![Segmented category bar, category list and spending by month](docs/screenshots/dashboard-breakdown.png) |
 
-| By month and by country | Trip | Share view |
+| Add expense | Expenses | Trip |
 |---|---|---|
-| ![Dashboard: spending by month, by country and by trip leg](docs/screenshots/dashboard-breakdown.png) | ![Trip: every leg with dates, currency and what it has cost](docs/screenshots/trip.png) | ![Share view: the read-only totals page behind a share link](docs/screenshots/share.png) |
+| ![Add expense: large amount, currency, round category buttons and the rate for the day](docs/screenshots/add.png) | ![Expenses: total, filters and a list grouped by day](docs/screenshots/expenses.png) | ![Trip: the next leg on a card and every leg below it](docs/screenshots/trip.png) |
 
-| Dark mode |
-|---|
-| <img src="docs/screenshots/dashboard-dark.png" alt="Dashboard in dark mode" width="280" /> |
+| Sign in | Share view | Dark mode |
+|---|---|---|
+| ![Sign in screen with the trip card](docs/screenshots/login.png) | ![Share view: the read-only totals page behind a share link](docs/screenshots/share.png) | ![Overview in dark mode](docs/screenshots/dashboard-dark.png) |
 
 ## Development
 
-- Next.js 16 with the App Router, React 19, TypeScript and Tailwind CSS 4. Data access uses Drizzle on Postgres.
+- Next.js 16 with the App Router, React 19, TypeScript and Tailwind CSS 4. Data access uses Drizzle on Postgres. Icons come from Lucide.
 - **Run it locally:** copy `.env.example` to `.env.local`, fill in both values, then:
 
 ```bash
@@ -173,13 +175,13 @@ npm run dev
 ```
 proxy.ts               Password gate in front of every page and data route
 app/
-  (app)/               Add, Expenses, Dashboard and Trip screens
+  (app)/               Add, Expenses, Overview and Trip screens
   share/[token]/       Public read-only totals behind a share link
   login/               Sign-in page
   api/rate/            Rate lookup used by the expense form
   api/export/          Spreadsheet export
   actions.ts           Server actions: sign in, expenses, legs and share links
-components/            Expense form, dashboard view, charts, navigation
+components/            Card layout pieces, card carousel, expense form, overview, charts, navigation
 lib/
   db/                  Drizzle schema and database client
   rates.ts             Exchange rate lookup with three sources

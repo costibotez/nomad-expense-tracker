@@ -1,13 +1,14 @@
 "use client";
 
+import { ChartPie, Map, Plus, ReceiptText } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const ITEMS = [
-  { href: "/", label: "Add", icon: "➕" },
-  { href: "/expenses", label: "Expenses", icon: "🧾" },
-  { href: "/dashboard", label: "Dashboard", icon: "📊" },
-  { href: "/trip", label: "Trip", icon: "🗺️" },
+  { href: "/dashboard", label: "Overview", Icon: ChartPie },
+  { href: "/expenses", label: "Expenses", Icon: ReceiptText },
+  { href: "/", label: "Add expense", Icon: Plus },
+  { href: "/trip", label: "Trip", Icon: Map },
 ];
 
 export function Nav() {
@@ -15,24 +16,25 @@ export function Nav() {
   return (
     <nav
       aria-label="Main"
-      className="fixed inset-x-0 bottom-0 z-10 border-t border-line bg-surface pb-[env(safe-area-inset-bottom)]"
+      className="fixed inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+14px)] z-10 flex justify-center"
     >
-      <ul className="mx-auto flex max-w-md">
-        {ITEMS.map((item) => {
-          const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
+      <ul
+        className="flex items-center gap-2 rounded-full bg-pill p-1.5 shadow-[0_12px_32px_-10px_rgba(0,0,0,0.55)]"
+        style={{ border: "1px solid var(--pill-line)" }}
+      >
+        {ITEMS.map(({ href, label, Icon }) => {
+          const active = href === "/" ? pathname === "/" : pathname.startsWith(href);
           return (
-            <li key={item.href} className="flex-1">
+            <li key={href}>
               <Link
-                href={item.href}
+                href={href}
+                aria-label={label}
                 aria-current={active ? "page" : undefined}
-                className={`flex min-h-14 flex-col items-center justify-center gap-0.5 text-xs ${
-                  active ? "font-semibold text-ink" : "text-muted"
+                className={`flex size-[52px] items-center justify-center rounded-full transition-colors ${
+                  active ? "bg-white text-[#0a0a0a]" : "text-white/70"
                 }`}
               >
-                <span aria-hidden className={active ? "" : "opacity-60 grayscale"}>
-                  {item.icon}
-                </span>
-                {item.label}
+                <Icon size={22} strokeWidth={active ? 2.25 : 1.75} aria-hidden />
               </Link>
             </li>
           );

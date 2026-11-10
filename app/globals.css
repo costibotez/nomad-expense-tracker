@@ -1,30 +1,59 @@
 @import "tailwindcss";
 
+/*
+ * Card UI theme: a monochrome palette with a black header panel, white cards,
+ * a silver trip card and a floating black navigation pill.
+ */
 :root {
   color-scheme: light;
-  --bg: #f4f4f2;
-  --surface: #fcfcfb;
-  --ink: #0b0b0b;
-  --muted: #52514e;
-  --line: #e2e1dc;
-  --accent: #2a78d6;
+  --bg: #f6f6f5;
+  --surface: #ffffff;
+  --ink: #0a0a0a;
+  --muted: #6b6b69;
+  --line: #ebebe9;
+  --field: #f1f1ef;
+  --accent: #0a0a0a;
   --accent-ink: #ffffff;
-  --track: #ebeae6;
+  --track: #ececea;
   --danger: #c0312f;
+  --hero: #0a0a0a;
+  --hero-ink: #ffffff;
+  --hero-muted: #9b9b98;
+  --hero-field: rgba(255, 255, 255, 0.1);
+  --pill: #0a0a0a;
+  --pill-line: transparent;
+  /* Category shares, darkest first. */
+  --seg-1: #0a0a0a;
+  --seg-2: #474746;
+  --seg-3: #858583;
+  --seg-4: #b7b7b4;
+  --seg-5: #dcdcd9;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     color-scheme: dark;
-    --bg: #111110;
-    --surface: #1a1a19;
-    --ink: #f0efec;
-    --muted: #c3c2b7;
-    --line: #30302d;
-    --accent: #3987e5;
-    --accent-ink: #ffffff;
-    --track: #262624;
-    --danger: #e66767;
+    --bg: #000000;
+    --surface: #141414;
+    --ink: #f2f2f0;
+    --muted: #a3a3a0;
+    --line: #262625;
+    --field: #1f1f1e;
+    --accent: #f2f2f0;
+    --accent-ink: #0a0a0a;
+    --track: #2a2a29;
+    --danger: #ef7a79;
+    --hero: #161616;
+    --hero-ink: #ffffff;
+    --hero-muted: #9b9b98;
+    --hero-field: rgba(255, 255, 255, 0.08);
+    --pill: #1c1c1c;
+    --pill-line: rgba(255, 255, 255, 0.1);
+    --seg-1: #f2f2f0;
+    --seg-2: #bdbdba;
+    --seg-3: #8a8a87;
+    --seg-4: #5e5e5c;
+    --seg-5: #3b3b3a;
   }
 }
 
@@ -34,16 +63,23 @@
   --color-ink: var(--ink);
   --color-muted: var(--muted);
   --color-line: var(--line);
+  --color-field: var(--field);
   --color-accent: var(--accent);
   --color-accent-ink: var(--accent-ink);
   --color-track: var(--track);
   --color-danger: var(--danger);
+  --color-hero: var(--hero);
+  --color-hero-ink: var(--hero-ink);
+  --color-hero-muted: var(--hero-muted);
+  --color-hero-field: var(--hero-field);
+  --color-pill: var(--pill);
 }
 
 body {
   background: var(--bg);
   color: var(--ink);
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -56,26 +92,92 @@ textarea {
 
 .field {
   width: 100%;
-  border: 1px solid var(--line);
-  background: var(--surface);
+  border: 1px solid transparent;
+  background: var(--field);
   color: var(--ink);
-  border-radius: 12px;
-  padding: 10px 12px;
-  min-height: 44px;
+  border-radius: 14px;
+  padding: 10px 14px;
+  min-height: 48px;
+}
+
+.field-dark {
+  background: var(--hero-field);
+  color: var(--hero-ink);
+}
+
+.field-dark option {
+  color: #0a0a0a;
 }
 
 .field:focus-visible,
 button:focus-visible,
 a:focus-visible,
-summary:focus-visible {
+summary:focus-visible,
+input:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
+}
+
+.hero :focus-visible {
+  outline-color: var(--hero-ink);
 }
 
 .card {
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 16px;
+  border-radius: 24px;
+}
+
+/* The silver trip card. */
+.trip-card {
+  position: relative;
+  color: #1a1a19;
+  border-radius: 20px;
+  background:
+    radial-gradient(120% 90% at 0% 0%, rgba(255, 255, 255, 0.55), transparent 55%),
+    linear-gradient(135deg, #dcdcd8 0%, #bdbdb8 48%, #d2d2ce 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    0 18px 40px -18px rgba(0, 0, 0, 0.7);
+}
+
+/* Two cards peek out above the front one, like a stack. */
+.trip-card-stack {
+  position: relative;
+  padding-top: 14px;
+}
+
+.trip-card-stack::before,
+.trip-card-stack::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  border-radius: 20px 20px 0 0;
+  transform: translateX(-50%);
+}
+
+.trip-card-stack::before {
+  top: 0;
+  width: 82%;
+  height: 30px;
+  background: linear-gradient(180deg, #5d5d5a, #4a4a48);
+  border-radius: 16px 16px 0 0;
+}
+
+.trip-card-stack::after {
+  top: 7px;
+  width: 91%;
+  height: 30px;
+  background: linear-gradient(180deg, #8d8d89, #7a7a77);
+  border-radius: 18px 18px 0 0;
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
 
 .tabular {

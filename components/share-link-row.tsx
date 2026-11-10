@@ -21,9 +21,9 @@ export function ShareLinkRow({ id, token, created }: { id: number; token: string
   }
 
   return (
-    <li className="flex flex-col gap-2 px-4 py-3">
+    <li className="flex flex-col gap-3 px-5 py-4">
       <div className="flex items-baseline justify-between gap-3 text-sm">
-        <a href={path} target="_blank" rel="noreferrer" className="min-w-0 truncate text-accent underline">
+        <a href={path} target="_blank" rel="noreferrer" className="min-w-0 truncate text-ink underline">
           {path}
         </a>
         <span className="shrink-0 text-xs text-muted">Created {created}</span>
@@ -32,7 +32,7 @@ export function ShareLinkRow({ id, token, created }: { id: number; token: string
         <button
           type="button"
           onClick={copy}
-          className="min-h-11 rounded-xl bg-accent text-sm font-semibold text-accent-ink"
+          className="min-h-11 rounded-full bg-accent text-sm font-semibold text-accent-ink"
         >
           <span aria-live="polite">{copied ? "Copied" : "Copy link"}</span>
         </button>
@@ -40,7 +40,7 @@ export function ShareLinkRow({ id, token, created }: { id: number; token: string
           <input type="hidden" name="id" value={id} />
           <ConfirmButton
             message="Switch this link off? Anyone who has it will lose access."
-            className="min-h-11 w-full rounded-xl border border-line text-sm font-medium text-danger"
+            className="min-h-11 w-full rounded-full border border-line text-sm font-medium text-danger"
           >
             Switch off
           </ConfirmButton>

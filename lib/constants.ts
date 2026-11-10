@@ -1,15 +1,15 @@
 export const HOME_CURRENCY = "EUR";
 
 export const CATEGORIES = [
-  { id: "flights", label: "Flights", icon: "✈️" },
-  { id: "accommodation", label: "Accommodation", icon: "🏠" },
-  { id: "food", label: "Food", icon: "🍜" },
-  { id: "transport", label: "Local transport", icon: "🚌" },
-  { id: "activities", label: "Activities", icon: "🎟️" },
-  { id: "visas", label: "Visas and insurance", icon: "🛂" },
-  { id: "shopping", label: "Shopping", icon: "🛍️" },
-  { id: "health", label: "Health", icon: "💊" },
-  { id: "other", label: "Other", icon: "📦" },
+  { id: "flights", label: "Flights" },
+  { id: "accommodation", label: "Accommodation" },
+  { id: "food", label: "Food" },
+  { id: "transport", label: "Local transport" },
+  { id: "activities", label: "Activities" },
+  { id: "visas", label: "Visas and insurance" },
+  { id: "shopping", label: "Shopping" },
+  { id: "health", label: "Health" },
+  { id: "other", label: "Other" },
 ] as const;
 
 export type CategoryId = (typeof CATEGORIES)[number]["id"];
