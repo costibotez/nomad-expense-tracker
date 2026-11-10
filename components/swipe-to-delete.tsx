@@ -17,7 +17,8 @@ function DeleteButton({ label, onFocus, onBlur }: { label: string; onFocus: () =
       aria-label={label}
       onFocus={onFocus}
       onBlur={onBlur}
-      className="flex h-full w-full flex-col items-center justify-center gap-1 bg-danger text-xs font-semibold text-surface disabled:opacity-60"
+      style={{ width: REVEAL }}
+      className="flex h-full flex-col items-center justify-center gap-1 text-xs font-semibold text-surface disabled:opacity-60"
     >
       <Trash2 size={18} aria-hidden />
       {pending ? "Deleting" : "Delete"}
@@ -50,14 +51,19 @@ export function SwipeToDelete({
   const moved = useRef(false);
 
   const offset = drag ?? (open ? -REVEAL : 0);
+  // 0 while closed, 1 once the delete button is fully uncovered.
+  const progress = Math.min(1, -offset / REVEAL);
 
   return (
     <div className="relative overflow-hidden">
-      {/* Invisible while closed so no red shows at the rounded card corners. */}
+      {/* The whole row turns red behind the expense and fades in with the swipe. */}
       <form
         action={deleteExpense}
-        className="absolute inset-y-0 right-0"
-        style={{ width: REVEAL, opacity: offset === 0 ? 0 : 1 }}
+        className="absolute inset-0 flex justify-end bg-danger"
+        style={{
+          opacity: progress,
+          transition: drag === null ? "opacity 180ms ease-out" : "none",
+        }}
       >
         <input type="hidden" name="id" value={id} />
         <input type="hidden" name="category" value={category} />
@@ -110,6 +116,15 @@ export function SwipeToDelete({
         }}
       >
         {children}
+        {/* A red wash over the expense itself, so the whole row reads as red. */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 bg-danger"
+          style={{
+            opacity: progress * 0.16,
+            transition: drag === null ? "opacity 180ms ease-out" : "none",
+          }}
+        />
       </div>
     </div>
   );
