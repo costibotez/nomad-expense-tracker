@@ -1,13 +1,13 @@
 import { desc, sql } from "drizzle-orm";
-import { Download, Link2, LogOut } from "lucide-react";
+import { Download, Link2, LogOut, Plus } from "lucide-react";
 import { createShareLink, logout } from "@/app/actions";
 import { LegForm } from "@/components/leg-form";
 import { ShareLinkRow } from "@/components/share-link-row";
 import { Hero, TripCard } from "@/components/ui";
-import { CURRENCIES } from "@/lib/constants";
 import { db } from "@/lib/db";
 import { expenses, shareLinks } from "@/lib/db/schema";
 import { daysBetween, formatEuro, formatShortDate } from "@/lib/format";
+import { COUNTRY_OPTIONS, CURRENCY_OPTIONS, currencyName } from "@/lib/places";
 import { getLegs, serverToday } from "@/lib/queries";
 
 export default async function TripPage() {
@@ -31,6 +31,12 @@ export default async function TripPage() {
   const countries = new Set(legs.map((l) => l.country)).size;
   const tripDays = legs.length > 0 ? daysBetween(legs[0].startDate, legs[legs.length - 1].endDate) : 0;
 
+  // A new leg starts the day after the last one ends and lasts a week.
+  const addDays = (iso: string, n: number) =>
+    new Date(Date.parse(`${iso}T00:00:00Z`) + n * 86_400_000).toISOString().slice(0, 10);
+  const lastEnd = legs.length > 0 ? legs.reduce((max, l) => (l.endDate > max ? l.endDate : max), legs[0].endDate) : today;
+  const newLegDefaults = { startDate: addDays(lastEnd, 1), endDate: addDays(lastEnd, 7) };
+
   return (
     <div className="flex flex-col gap-5">
       <Hero
@@ -44,7 +50,7 @@ export default async function TripPage() {
                 label={`${featured.flag} ${featured.country}`}
                 name={featured.cities}
                 mark={featured.currency}
-                markCaption={CURRENCIES.find((c) => c.code === featured.currency)?.name ?? ""}
+                markCaption={currencyName(featured.currency)}
                 stacked
               />
             </div>
@@ -65,8 +71,8 @@ export default async function TripPage() {
       </Hero>
 
       <p className="px-1 text-sm text-muted">
-        New expenses pick the leg and currency that match their date. Open a leg to change its
-        dates if your plans move.
+        New expenses pick the leg and currency that match their date. Tap a leg to change its
+        country, places, dates or currency, or to delete it.
       </p>
 
       <ol className="card divide-y divide-line overflow-hidden">
@@ -102,11 +108,25 @@ export default async function TripPage() {
                   </span>
                   <span className="tabular text-sm font-semibold">{formatEuro(spent.get(leg.id) ?? 0)}</span>
                 </summary>
-                <LegForm leg={leg} />
+                <LegForm leg={leg} countries={COUNTRY_OPTIONS} currencies={CURRENCY_OPTIONS} />
               </details>
             </li>
           );
         })}
+        <li>
+          <details>
+            <summary className="flex cursor-pointer list-none items-center gap-3 px-4 py-3">
+              <span
+                aria-hidden
+                className="flex size-11 shrink-0 items-center justify-center rounded-full bg-accent text-accent-ink"
+              >
+                <Plus size={20} />
+              </span>
+              <span className="text-sm font-semibold">Add a leg</span>
+            </summary>
+            <LegForm countries={COUNTRY_OPTIONS} currencies={CURRENCY_OPTIONS} defaults={newLegDefaults} />
+          </details>
+        </li>
       </ol>
 
       <section id="share" aria-labelledby="share-heading" className="card scroll-mt-4 overflow-hidden">

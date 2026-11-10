@@ -6,10 +6,11 @@ import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { isCorrectPassword, isValidSession, SESSION_COOKIE, sessionToken } from "@/lib/auth";
-import { CATEGORY_IDS, CURRENCY_CODES } from "@/lib/constants";
+import { CATEGORY_IDS } from "@/lib/constants";
 import { db } from "@/lib/db";
 import { expenses, legs, shareLinks } from "@/lib/db/schema";
 import { isIsoDate } from "@/lib/format";
+import { countryByCode, isCurrencyCode } from "@/lib/places";
 import { fetchRate } from "@/lib/rates";
 
 export type FormState = { error?: string } | undefined;
@@ -73,7 +74,7 @@ export async function saveExpense(_prev: FormState, formData: FormData): Promise
 
   if (!Number.isFinite(amount) || amount <= 0) return { error: "Enter an amount above zero." };
   if (amount >= 1e13) return { error: "That amount is too large." };
-  if (!CURRENCY_CODES.includes(currency)) return { error: "Choose a currency." };
+  if (!isCurrencyCode(currency)) return { error: "Choose a currency." };
   if (!CATEGORY_IDS.includes(category)) return { error: "Choose a category." };
   if (!isIsoDate(date)) return { error: "Choose a valid date." };
   if (id !== null && !Number.isInteger(id)) return { error: "Unknown expense." };
@@ -143,20 +144,48 @@ export async function deleteExpense(formData: FormData) {
   redirect("/expenses");
 }
 
-export async function updateLeg(_prev: FormState, formData: FormData): Promise<FormState> {
-  await requireSession();
-  const id = Number(text(formData, "id"));
+function readLeg(formData: FormData) {
+  const country = countryByCode(text(formData, "country"));
   const cities = text(formData, "cities").slice(0, 200);
   const startDate = text(formData, "startDate");
   const endDate = text(formData, "endDate");
   const currency = text(formData, "currency");
 
-  if (!Number.isInteger(id)) return { error: "Unknown trip leg." };
-  if (!isIsoDate(startDate) || !isIsoDate(endDate)) return { error: "Choose valid dates." };
-  if (endDate < startDate) return { error: "The end date is before the start date." };
-  if (!CURRENCY_CODES.includes(currency)) return { error: "Choose a currency." };
+  if (!country) return { error: "Choose a country." } as const;
+  if (!isIsoDate(startDate) || !isIsoDate(endDate)) return { error: "Choose valid dates." } as const;
+  if (endDate < startDate) return { error: "The end date is before the start date." } as const;
+  if (!isCurrencyCode(currency)) return { error: "Choose a currency." } as const;
 
-  await db.update(legs).set({ cities, startDate, endDate, currency }).where(eq(legs.id, id));
+  return {
+    values: { country: country.name, flag: country.flag, cities, startDate, endDate, currency },
+  } as const;
+}
+
+export async function saveLeg(_prev: FormState, formData: FormData): Promise<FormState> {
+  await requireSession();
+  const idRaw = text(formData, "id");
+  const leg = readLeg(formData);
+  if ("error" in leg) return { error: leg.error };
+
+  if (idRaw) {
+    const id = Number(idRaw);
+    if (!Number.isInteger(id)) return { error: "Unknown trip leg." };
+    const updated = await db.update(legs).set(leg.values).where(eq(legs.id, id)).returning({ id: legs.id });
+    if (updated.length === 0) return { error: "This leg no longer exists." };
+  } else {
+    await db.insert(legs).values(leg.values);
+  }
+  revalidatePath("/", "layout");
+  redirect("/trip");
+}
+
+/** Expenses of a deleted leg stay, as "not tied to a leg". */
+export async function deleteLeg(formData: FormData) {
+  await requireSession();
+  const id = Number(text(formData, "id"));
+  if (Number.isInteger(id)) {
+    await db.delete(legs).where(eq(legs.id, id));
+  }
   revalidatePath("/", "layout");
   redirect("/trip");
 }

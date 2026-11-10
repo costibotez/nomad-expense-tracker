@@ -4,11 +4,12 @@ import Link from "next/link";
 import { CardCarousel, type CarouselItem } from "@/components/card-carousel";
 import { ColumnChart, type ColumnItem } from "@/components/charts";
 import { Hero, HeroButton, Panel, RoundAction } from "@/components/ui";
-import { CATEGORIES, CURRENCIES } from "@/lib/constants";
+import { CATEGORIES } from "@/lib/constants";
 import { db } from "@/lib/db";
 import { expenses, legs } from "@/lib/db/schema";
 import { daysBetween, formatEuro, formatMonth, formatShortDate } from "@/lib/format";
 import { CategoryIcon } from "@/lib/icons";
+import { currencyName } from "@/lib/places";
 import { getLegs, NO_LEG, serverToday } from "@/lib/queries";
 
 const total = sql<string>`coalesce(sum(${expenses.amountEur}), 0)`;
@@ -30,7 +31,6 @@ function plural(n: number, word: string) {
   return `${n} ${n === 1 ? word : `${word}s`}`;
 }
 
-const currencyName = (code: string) => CURRENCIES.find((c) => c.code === code)?.name ?? code;
 
 /** Category shares use five shades. Categories past the fourth share the lightest one. */
 const SHADES = ["var(--seg-1)", "var(--seg-2)", "var(--seg-3)", "var(--seg-4)", "var(--seg-5)"];
