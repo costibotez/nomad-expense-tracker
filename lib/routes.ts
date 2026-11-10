@@ -1,4 +1,5 @@
 export const routes = {
+  demo: "/demo",
   app: "/app",
   overview: "/app/overview",
   expenses: "/app/expenses",
