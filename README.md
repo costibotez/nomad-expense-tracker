@@ -81,7 +81,7 @@ Nine months on the road through nine countries means nine currencies. Every one 
 - Light and dark mode follow your phone setting
 
 ### 🗺️ Editable itinerary
-- All 14 legs of the trip are loaded the first time the app is built
+- A new install starts empty. A short walkthrough on first sign in asks for your name and your first leg, and every step can be skipped. The sample trip below is one tap away if you only want to look around
 - Tap a leg to change its **country, places, dates or default currency** when your plans move
 - **Add a leg** for a new country. Every country has its flag, and the currency is suggested for you from more than 160
 - **Delete a leg** you no longer need. Its expenses stay and show as not tied to a leg
@@ -113,7 +113,7 @@ Nine months on the road through nine countries means nine currencies. Every one 
 1. Import this repository as a new project on [Vercel](https://vercel.com/new).
 2. In the project, open **Storage** and add a **Neon Postgres** database. This sets `DATABASE_URL` for you.
 3. In **Settings → Environment Variables**, add `APP_PASSWORD` with a long password of your choice.
-4. Deploy. The build creates the tables and loads the itinerary the first time.
+4. Deploy. The build creates the tables. Your first sign in opens a short walkthrough: your name, then your first trip leg. Each step has a skip link.
 5. Open the site on your phone, sign in and choose **Add to Home Screen**.
 
 ## The itinerary
@@ -135,7 +135,7 @@ Nine months on the road through nine countries means nine currencies. Every one 
 | 11 July to 11 August 2027 | 🇰🇿 Kazakhstan | Almaty / Charyn Canyon / Kolsai Lakes / Astana | Kazakh tenge |
 | 12 August 2027 | 🇷🇴 Romania | Bucharest (Return Home) | Romanian leu |
 
-Planning a different trip? Edit `scripts/legs-seed.json` before the first deployment, or add, change and delete legs afterwards on the **Trip** screen.
+This is the sample trip. It is never loaded on its own. The walkthrough offers it as **Look around with a sample trip**, and it lives in `lib/sample-trip.json`. Your own legs are added, changed and deleted on the **Trip** screen.
 
 ## Roadmap
 
@@ -174,7 +174,7 @@ npm run db:migrate
 npm run dev
 ```
 
-- **Migrations run before every build.** `npm run build` first runs `scripts/migrate.mjs`, which applies the files in `drizzle/` and loads the itinerary into an empty database. A fresh deployment needs no manual database step.
+- **Migrations run before every build.** `npm run build` first runs `scripts/migrate.mjs`, which applies the files in `drizzle/`. A fresh deployment needs no manual database step.
 - **Changing the schema:** edit `lib/db/schema.ts`, run `npm run db:generate` and commit the new file in `drizzle/`.
 - **Charts are plain HTML and CSS.** There is no chart library to load on a slow connection.
 - **Exchange rates** come from the fawazahmed0 currency data set, first through jsDelivr and then through Cloudflare Pages, with open.er-api.com as the last fallback. See `lib/rates.ts`.
@@ -185,6 +185,7 @@ app/
   (app)/               Add, Expenses, Overview and Trip screens
   share/[token]/       Public read-only totals behind a share link
   login/               Sign-in page
+  setup/               First run walkthrough: your name and your first trip leg
   api/rate/            Rate lookup used by the expense form
   api/export/          Spreadsheet export
   actions.ts           Server actions: sign in, expenses, legs and share links
@@ -194,9 +195,9 @@ lib/
   rates.ts             Exchange rate lookup with three sources
   constants.ts         Categories and currencies
   format.ts            Money and date formatting
+  sample-trip.json     The sample trip offered in the walkthrough
 scripts/
-  migrate.mjs          Migrations and first-time itinerary load
-  legs-seed.json       The itinerary
+  migrate.mjs          Migrations
 drizzle/               Generated SQL migrations
 docs/                  Banner and screenshots for this page
 ```
@@ -215,7 +216,7 @@ Useful scripts:
 |---|---|
 | `npm run dev` | Start the development server |
 | `npm run build` | Run migrations, then build for production |
-| `npm run db:migrate` | Apply migrations and load the itinerary into an empty database |
+| `npm run db:migrate` | Apply migrations |
 | `npm run db:generate` | Create a migration after a schema change |
 | `npm run lint` | Check the code with ESLint |
 

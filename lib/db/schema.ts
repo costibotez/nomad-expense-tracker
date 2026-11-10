@@ -36,5 +36,14 @@ export const shareLinks = pgTable("share_links", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+/** One row with id 1. It is missing until the first run walkthrough saves something. */
+export const settings = pgTable("settings", {
+  id: integer("id").primaryKey().default(1),
+  // Shown in the greeting on the overview.
+  name: text("name").notNull().default(""),
+  // Set when the walkthrough is finished or skipped.
+  setupDoneAt: timestamp("setup_done_at", { withTimezone: true }),
+});
+
 export type Leg = typeof legs.$inferSelect;
 export type Expense = typeof expenses.$inferSelect;
