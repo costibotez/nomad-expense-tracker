@@ -1,11 +1,11 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import "./landing.css";
 
 export const metadata: Metadata = {
   title: "Nomad Expenses",
   description: "Track travel spending across countries and currencies.",
   appleWebApp: { capable: true, title: "Expenses", statusBarStyle: "black-translucent" },
-  robots: { index: false, follow: false },
 };
 
 export const viewport: Viewport = {

@@ -1,3 +1,4 @@
+import { routes } from "@/lib/routes";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -16,10 +17,10 @@ const primaryButton = "flex min-h-14 w-full items-center justify-center rounded-
 const skipLink = "flex min-h-11 items-center justify-center text-sm text-hero-muted underline underline-offset-4";
 
 /** The first run walkthrough: your name, your first trip leg, then into the app. Every step can be skipped. */
-export default async function SetupPage({ searchParams }: PageProps<"/setup">) {
+export default async function SetupPage({ searchParams }: PageProps<"/app/setup">) {
   const params = await searchParams;
   const [settings, legs] = await Promise.all([getSettings(), getLegs()]);
-  if (settings?.setupDoneAt) redirect("/");
+  if (settings?.setupDoneAt) redirect(routes.app);
 
   const step: Step = STEPS.find((s) => s === params.step) ?? "name";
   const position = STEPS.indexOf(step);
@@ -73,7 +74,7 @@ export default async function SetupPage({ searchParams }: PageProps<"/setup">) {
               <button type="submit" className={primaryButton}>
                 Continue
               </button>
-              <Link href="/setup?step=trip" className={skipLink}>
+              <Link href={`${routes.setup}?step=trip`} className={skipLink}>
                 Skip this step
               </Link>
             </form>
@@ -110,7 +111,7 @@ export default async function SetupPage({ searchParams }: PageProps<"/setup">) {
                   </button>
                 </form>
               )}
-              <Link href="/setup?step=done" className={skipLink}>
+              <Link href={`${routes.setup}?step=done`} className={skipLink}>
                 Skip this step
               </Link>
             </div>
@@ -142,7 +143,7 @@ export default async function SetupPage({ searchParams }: PageProps<"/setup">) {
               <button type="submit" className={primaryButton}>
                 Open the app
               </button>
-              <Link href="/setup?step=trip" className={skipLink}>
+              <Link href={`${routes.setup}?step=trip`} className={skipLink}>
                 Back
               </Link>
             </form>
