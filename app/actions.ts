@@ -8,10 +8,11 @@ import { redirect } from "next/navigation";
 import { isCorrectPassword, isValidSession, SESSION_COOKIE, sessionToken } from "@/lib/auth";
 import { CATEGORY_IDS } from "@/lib/constants";
 import { db } from "@/lib/db";
-import { expenses, legs, shareLinks } from "@/lib/db/schema";
+import { expenses, legs, settings, shareLinks } from "@/lib/db/schema";
 import { isIsoDate } from "@/lib/format";
 import { countryByCode, isCurrencyCode } from "@/lib/places";
 import { fetchRate } from "@/lib/rates";
+import sampleTrip from "@/lib/sample-trip.json";
 
 export type FormState = { error?: string } | undefined;
 
@@ -50,6 +51,37 @@ export async function login(_prev: FormState, formData: FormData): Promise<FormS
     path: "/",
     maxAge: 60 * 60 * 24 * 365,
   });
+  // A fresh install starts with the walkthrough.
+  const [row] = await db.select({ done: settings.setupDoneAt }).from(settings).where(eq(settings.id, 1));
+  redirect(row?.done ? "/" : "/setup");
+}
+
+/** Step one of the walkthrough. An empty name is fine. */
+export async function saveSetupName(formData: FormData) {
+  await requireSession();
+  const name = text(formData, "name").slice(0, 40);
+  await db.insert(settings).values({ id: 1, name }).onConflictDoUpdate({ target: settings.id, set: { name } });
+  redirect("/setup?step=trip");
+}
+
+/** Fills an empty trip with the sample itinerary, to look around before planning your own. */
+export async function loadSampleTrip() {
+  await requireSession();
+  const existing = await db.select({ id: legs.id }).from(legs).limit(1);
+  if (existing.length === 0) await db.insert(legs).values(sampleTrip);
+  revalidatePath("/", "layout");
+  redirect("/setup?step=done");
+}
+
+/** Ends the walkthrough, whether its steps were filled in or skipped. */
+export async function finishSetup() {
+  await requireSession();
+  const setupDoneAt = new Date();
+  await db
+    .insert(settings)
+    .values({ id: 1, setupDoneAt })
+    .onConflictDoUpdate({ target: settings.id, set: { setupDoneAt } });
+  revalidatePath("/", "layout");
   redirect("/");
 }
 
@@ -188,7 +220,14 @@ export async function deleteExpense(formData: FormData) {
   }
   revalidatePath("/", "layout");
   // Undoing a repeat on the Add screen stays on the Add screen.
-  redirect(text(formData, "back") === "add" ? "/" : "/expenses");
+  if (text(formData, "back") === "add") redirect("/");
+  // A delete from the list keeps the filters that were in use.
+  const query = new URLSearchParams();
+  for (const key of ["category", "country"]) {
+    const value = text(formData, key);
+    if (value) query.set(key, value);
+  }
+  redirect(query.size > 0 ? `/expenses?${query}` : "/expenses");
 }
 
 function readLeg(formData: FormData) {
@@ -223,7 +262,8 @@ export async function saveLeg(_prev: FormState, formData: FormData): Promise<For
     await db.insert(legs).values(leg.values);
   }
   revalidatePath("/", "layout");
-  redirect("/trip");
+  // The walkthrough carries on to its last step.
+  redirect(text(formData, "from") === "setup" ? "/setup?step=done" : "/trip");
 }
 
 /** Expenses of a deleted leg stay, as "not tied to a leg". */

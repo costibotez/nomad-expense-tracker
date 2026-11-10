@@ -21,11 +21,14 @@ export function LegForm({
   countries,
   currencies,
   defaults,
+  setup = false,
 }: {
   leg?: LegFormLeg;
   countries: LegCountry[];
   currencies: { main: LegCurrency[]; other: LegCurrency[] };
   defaults?: { startDate: string; endDate: string };
+  /** Used inside the first run walkthrough, which continues after the save. */
+  setup?: boolean;
 }) {
   const [state, action, pending] = useActionState(saveLeg, undefined);
   const initialCode = leg ? (countries.find((c) => c.name === leg.country)?.code ?? "") : "";
@@ -37,9 +40,10 @@ export function LegForm({
   const known = [...currencies.main, ...currencies.other].some((c) => c.code === currency);
 
   return (
-    <div className="flex flex-col gap-3 border-t border-line p-5">
+    <div className={`flex flex-col gap-3 p-5 ${setup ? "" : "border-t border-line"}`}>
       <form action={action} className="flex flex-col gap-3">
         {leg && <input type="hidden" name="id" value={leg.id} />}
+        {setup && <input type="hidden" name="from" value="setup" />}
         <label className="flex flex-col gap-1 text-sm font-medium">
           Country
           <select
