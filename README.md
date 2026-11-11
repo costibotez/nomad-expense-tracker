@@ -85,6 +85,7 @@ Nine months on the road through nine countries means nine currencies. Every one 
 - Tap a leg to change its **country, places, dates or default currency** when your plans move
 - **Add a leg** for a new country. Every country has its flag, and the currency is suggested for you from more than 160
 - **Delete a leg** you no longer need. Its expenses stay and show as not tied to a leg
+- **Drag a leg** up or down to change the order. Use its handle, or press and hold the leg. Every leg keeps its number of days and the dates follow the new order
 - The current leg is highlighted and every leg shows what it has cost so far
 
 ### 📤 Spreadsheet export
