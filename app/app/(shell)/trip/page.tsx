@@ -1,9 +1,10 @@
 import { routes } from "@/lib/routes";
 import { desc, sql } from "drizzle-orm";
-import { Download, Link2, LogOut, Plus } from "lucide-react";
-import { createShareLink, logout } from "@/app/actions";
+import { Download, GripVertical, Link2, LogOut, Plus } from "lucide-react";
+import { createShareLink, logout, reorderLegs } from "@/app/actions";
 import { LegForm } from "@/components/leg-form";
 import { ShareLinkRow } from "@/components/share-link-row";
+import { SortableList } from "@/components/sortable-list";
 import { Hero, TripCard } from "@/components/ui";
 import { db } from "@/lib/db";
 import { expenses, shareLinks } from "@/lib/db/schema";
@@ -73,17 +74,23 @@ export default async function TripPage() {
 
       <p className="px-1 text-sm text-muted">
         New expenses pick the leg and currency that match their date. Tap a leg to change its
-        country, places, dates or currency, or to delete it.
+        country, places, dates or currency, or to delete it. Drag a leg by its handle, or press and
+        hold it, to move it up or down. Every leg keeps its number of days and the dates follow
+        the new order.
       </p>
 
-      <ol className="card divide-y divide-line overflow-hidden">
-        {legs.map((leg) => {
+      <SortableList
+        className="card divide-y divide-line overflow-hidden"
+        reorderAction={reorderLegs}
+        items={legs.map((leg) => {
           const isCurrent = leg.id === current?.id;
           const days = daysBetween(leg.startDate, leg.endDate);
-          return (
-            <li key={leg.id}>
+          return {
+            id: leg.id,
+            label: leg.country,
+            content: (
               <details>
-                <summary className="flex cursor-pointer list-none items-center gap-3 px-4 py-3">
+                <summary className="flex cursor-pointer list-none items-center gap-3 px-4 py-3 select-none [-webkit-touch-callout:none]">
                   <span
                     aria-hidden
                     className={`flex size-11 shrink-0 items-center justify-center rounded-xl border text-xl ${
@@ -108,12 +115,23 @@ export default async function TripPage() {
                     </span>
                   </span>
                   <span className="tabular text-sm font-semibold">{formatEuro(spent.get(leg.id) ?? 0)}</span>
+                  {legs.length > 1 && (
+                    <button
+                      type="button"
+                      data-drag-handle
+                      aria-label={`Move ${leg.country}. Drag, or use the up and down arrow keys.`}
+                      className="-mr-2 flex h-11 w-8 shrink-0 cursor-grab touch-none items-center justify-center rounded-full text-muted"
+                    >
+                      <GripVertical size={18} aria-hidden />
+                    </button>
+                  )}
                 </summary>
                 <LegForm leg={leg} countries={COUNTRY_OPTIONS} currencies={CURRENCY_OPTIONS} />
               </details>
-            </li>
-          );
+            ),
+          };
         })}
+        footer={
         <li>
           <details>
             <summary className="flex cursor-pointer list-none items-center gap-3 px-4 py-3">
@@ -128,7 +146,8 @@ export default async function TripPage() {
             <LegForm countries={COUNTRY_OPTIONS} currencies={CURRENCY_OPTIONS} defaults={newLegDefaults} />
           </details>
         </li>
-      </ol>
+        }
+      />
 
       <section id="share" aria-labelledby="share-heading" className="card scroll-mt-4 overflow-hidden">
         <div className="flex gap-3 p-5">
