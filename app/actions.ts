@@ -307,46 +307,6 @@ export async function reorderLegs(ids: number[]) {
   revalidatePath(routes.app, "layout");
 }
 
-const toDay = (iso: string) => Math.round(Date.parse(`${iso}T00:00:00Z`) / 86_400_000);
-const fromDay = (day: number) => new Date(day * 86_400_000).toISOString().slice(0, 10);
-
-/**
- * Puts the legs in a new order, given as every leg id from first to last.
- * The list is ordered by date, so the dates move with the legs: every leg
- * keeps its number of days, the trip starts on the same day and the breaks
- * between legs stay where they were. Expenses stay with their leg.
- */
-export async function reorderLegs(ids: number[]) {
-  await requireSession();
-  if (!Array.isArray(ids) || !ids.every((id) => Number.isInteger(id))) return;
-
-  await db.transaction(async (tx) => {
-    const current = await tx.select().from(legs).orderBy(asc(legs.startDate), asc(legs.id));
-    const byId = new Map(current.map((leg) => [leg.id, leg]));
-    // A list that changed in the meantime is left alone and shown again as it is.
-    if (ids.length !== current.length || new Set(ids).size !== ids.length || !ids.every((id) => byId.has(id))) return;
-    if (ids.every((id, i) => id === current[i].id)) return;
-
-    let start = toDay(current[0].startDate);
-    for (let i = 0; i < ids.length; i++) {
-      const leg = byId.get(ids[i])!;
-      const end = start + toDay(leg.endDate) - toDay(leg.startDate);
-      const startDate = fromDay(start);
-      const endDate = fromDay(end);
-      if (startDate !== leg.startDate || endDate !== leg.endDate) {
-        await tx.update(legs).set({ startDate, endDate }).where(eq(legs.id, leg.id));
-      }
-      if (i + 1 < ids.length) {
-        // The break after this place in the list, in days. Legs that overlap give a negative one.
-        const gap = toDay(current[i + 1].startDate) - toDay(current[i].endDate);
-        // A later leg always starts later, or the order by date would not hold.
-        start = Math.max(start + 1, end + gap);
-      }
-    }
-  });
-  revalidatePath("/", "layout");
-}
-
 /** Expenses of a deleted leg stay, as "not tied to a leg". */
 export async function deleteLeg(formData: FormData) {
   await requireSession();
