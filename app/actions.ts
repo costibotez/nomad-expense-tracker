@@ -304,7 +304,7 @@ export async function reorderLegs(ids: number[]) {
       }
     }
   });
-  revalidatePath("/", "layout");
+  revalidatePath(routes.app, "layout");
 }
 
 /** Expenses of a deleted leg stay, as "not tied to a leg". */
