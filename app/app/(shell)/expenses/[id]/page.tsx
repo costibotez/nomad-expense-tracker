@@ -1,3 +1,4 @@
+import { routes } from "@/lib/routes";
 import { eq } from "drizzle-orm";
 import { ArrowLeft } from "lucide-react";
 import { notFound } from "next/navigation";
@@ -9,7 +10,7 @@ import { db } from "@/lib/db";
 import { expenses } from "@/lib/db/schema";
 import { getLegs, serverToday } from "@/lib/queries";
 
-export default async function EditExpensePage({ params }: PageProps<"/expenses/[id]">) {
+export default async function EditExpensePage({ params }: PageProps<"/app/expenses/[id]">) {
   const id = Number((await params).id);
   if (!Number.isInteger(id)) notFound();
 
@@ -27,7 +28,7 @@ export default async function EditExpensePage({ params }: PageProps<"/expenses/[
         serverToday={serverToday()}
         title="Edit expense"
         headerAction={
-          <HeroButton href="/expenses" label="Back to expenses">
+          <HeroButton href={routes.expenses} label="Back to expenses">
             <ArrowLeft size={20} aria-hidden />
           </HeroButton>
         }

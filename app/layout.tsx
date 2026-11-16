@@ -4,6 +4,7 @@ import { GeistSans } from "geist/font/sans";
 import { FULL_NAME } from "@/lib/brand";
 import { DEMO_MODE } from "@/lib/demo";
 import "./globals.css";
+import "./landing.css";
 
 export const metadata: Metadata = {
   title: DEMO_MODE ? `${FULL_NAME}: live demo` : FULL_NAME,
@@ -11,8 +12,6 @@ export const metadata: Metadata = {
     ? "Tap through a sample trip. Nomad Expenses tracks travel spending across countries and currencies on your own Vercel and Neon."
     : "Track travel spending across countries and currencies.",
   appleWebApp: { capable: true, title: "Expenses", statusBarStyle: "black-translucent" },
-  // A personal install stays out of search engines. Only the public demo is listed.
-  robots: { index: DEMO_MODE, follow: DEMO_MODE },
 };
 
 export const viewport: Viewport = {

@@ -8,7 +8,7 @@ import { expenses } from "@/lib/db/schema";
 import { formatAmount, formatEuro, formatShortDate } from "@/lib/format";
 import { expensesWithLeg, getLegs, recentExpenses, serverToday } from "@/lib/queries";
 
-export default async function AddPage({ searchParams }: PageProps<"/">) {
+export default async function AddPage({ searchParams }: PageProps<"/app">) {
   const params = await searchParams;
   const savedId = typeof params.saved === "string" ? Number(params.saved) : NaN;
 

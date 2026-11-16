@@ -1,3 +1,4 @@
+import { routes } from "@/lib/routes";
 import Link from "next/link";
 import { categoryOf } from "@/lib/constants";
 import { formatAmount, formatEuro } from "@/lib/format";
@@ -19,7 +20,7 @@ export function ExpenseRow({ expense, detail }: { expense: RowExpense; detail?: 
   const secondary = [detail, expense.note || null].filter(Boolean).join(" · ");
   return (
     <Link
-      href={`/expenses/${expense.id}`}
+      href={`${routes.expenses}/${expense.id}`}
       className="flex min-h-16 items-center gap-3 px-4 py-2.5"
       aria-label={`Edit ${category.label} ${formatEuro(Number(expense.amountEur))}`}
     >

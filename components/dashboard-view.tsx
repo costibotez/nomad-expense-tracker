@@ -1,3 +1,4 @@
+import { routes } from "@/lib/routes";
 import { eq, isNull, sql, type SQL } from "drizzle-orm";
 import { Download, Plus, ReceiptText, Share2 } from "lucide-react";
 import Link from "next/link";
@@ -197,7 +198,7 @@ export async function DashboardView({
         subtitle={intro}
         action={
           readOnly ? undefined : (
-            <HeroButton href="/" label="Add expense">
+            <HeroButton href={routes.app} label="Add expense">
               <Plus size={20} aria-hidden />
             </HeroButton>
           )
@@ -222,14 +223,14 @@ export async function DashboardView({
 
       {!readOnly && (
         <nav aria-label="Actions" className="grid grid-cols-4 gap-2 px-1">
-          <RoundAction href="/" label="Add" icon={<Plus size={20} strokeWidth={1.75} aria-hidden />} />
+          <RoundAction href={routes.app} label="Add" icon={<Plus size={20} strokeWidth={1.75} aria-hidden />} />
           <RoundAction
-            href={scope ? `/expenses?country=${encodeURIComponent(scope)}` : "/expenses"}
+            href={scope ? `${routes.expenses}?country=${encodeURIComponent(scope)}` : routes.expenses}
             label="Expenses"
             icon={<ReceiptText size={20} strokeWidth={1.75} aria-hidden />}
           />
-          <RoundAction href="/api/export" label="Export" download icon={<Download size={20} strokeWidth={1.75} aria-hidden />} />
-          <RoundAction href="/trip#share" label="Share" icon={<Share2 size={20} strokeWidth={1.75} aria-hidden />} />
+          <RoundAction href={routes.export} label="Export" download icon={<Download size={20} strokeWidth={1.75} aria-hidden />} />
+          <RoundAction href={`${routes.trip}#share`} label="Share" icon={<Share2 size={20} strokeWidth={1.75} aria-hidden />} />
         </nav>
       )}
 

@@ -1,3 +1,4 @@
+import { routes } from "@/lib/routes";
 import { and, desc, eq, isNull, type SQL } from "drizzle-orm";
 import { Download } from "lucide-react";
 import { ExpenseFilters } from "@/components/expense-filters";
@@ -9,7 +10,7 @@ import { expenses, legs } from "@/lib/db/schema";
 import { formatDay, formatEuro } from "@/lib/format";
 import { expensesWithLeg, getLegs, NO_LEG } from "@/lib/queries";
 
-export default async function ExpensesPage({ searchParams }: PageProps<"/expenses">) {
+export default async function ExpensesPage({ searchParams }: PageProps<"/app/expenses">) {
   const params = await searchParams;
   const category = typeof params.category === "string" ? params.category : "";
   const country = typeof params.country === "string" ? params.country : "";
@@ -46,7 +47,7 @@ export default async function ExpensesPage({ searchParams }: PageProps<"/expense
         title="Expenses"
         action={
           <a
-            href="/api/export"
+            href={routes.export}
             download
             aria-label="Export spreadsheet"
             className="flex size-11 shrink-0 items-center justify-center rounded-full bg-hero-field text-hero-ink"

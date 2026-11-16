@@ -1,5 +1,6 @@
 "use server";
 
+import { routes } from "@/lib/routes";
 import { randomBytes } from "node:crypto";
 import { and, asc, eq, gte, lte } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -21,7 +22,7 @@ async function requireSession() {
   // The live demo has no password. Every action below refuses to change data instead.
   if (DEMO_MODE) return;
   const store = await cookies();
-  if (!isValidSession(store.get(SESSION_COOKIE)?.value)) redirect("/login");
+  if (!isValidSession(store.get(SESSION_COOKIE)?.value)) redirect(routes.login);
 }
 
 function text(formData: FormData, key: string) {
@@ -46,7 +47,7 @@ function refuseInDemo(path: string): void {
 }
 
 export async function login(_prev: FormState, formData: FormData): Promise<FormState> {
-  if (DEMO_MODE) redirect("/");
+  if (DEMO_MODE) redirect(routes.app);
   const token = sessionToken();
   if (!token) {
     return { error: "No password is configured. Set APP_PASSWORD in the project settings." };
@@ -66,46 +67,46 @@ export async function login(_prev: FormState, formData: FormData): Promise<FormS
   });
   // A fresh install starts with the walkthrough.
   const [row] = await db.select({ done: settings.setupDoneAt }).from(settings).where(eq(settings.id, 1));
-  redirect(row?.done ? "/" : "/setup");
+  redirect(row?.done ? routes.app : routes.setup);
 }
 
 /** Step one of the walkthrough. An empty name is fine. */
 export async function saveSetupName(formData: FormData) {
   await requireSession();
-  if (DEMO_MODE) redirect("/");
+  if (DEMO_MODE) redirect(routes.app);
   const name = text(formData, "name").slice(0, 40);
   await db.insert(settings).values({ id: 1, name }).onConflictDoUpdate({ target: settings.id, set: { name } });
-  redirect("/setup?step=trip");
+  redirect(`${routes.setup}?step=trip`);
 }
 
 /** Fills an empty trip with the sample itinerary, to look around before planning your own. */
 export async function loadSampleTrip() {
   await requireSession();
-  if (DEMO_MODE) redirect("/");
+  if (DEMO_MODE) redirect(routes.app);
   const existing = await db.select({ id: legs.id }).from(legs).limit(1);
   if (existing.length === 0) await db.insert(legs).values(sampleTrip);
-  revalidatePath("/", "layout");
-  redirect("/setup?step=done");
+  revalidatePath(routes.app, "layout");
+  redirect(`${routes.setup}?step=done`);
 }
 
 /** Ends the walkthrough, whether its steps were filled in or skipped. */
 export async function finishSetup() {
   await requireSession();
-  if (DEMO_MODE) redirect("/");
+  if (DEMO_MODE) redirect(routes.app);
   const setupDoneAt = new Date();
   await db
     .insert(settings)
     .values({ id: 1, setupDoneAt })
     .onConflictDoUpdate({ target: settings.id, set: { setupDoneAt } });
-  revalidatePath("/", "layout");
-  redirect("/");
+  revalidatePath(routes.app, "layout");
+  redirect(routes.app);
 }
 
 export async function logout() {
-  if (DEMO_MODE) redirect("/");
+  if (DEMO_MODE) redirect(routes.app);
   const store = await cookies();
   store.delete(SESSION_COOKIE);
-  redirect("/login");
+  redirect(routes.login);
 }
 
 export async function saveExpense(_prev: FormState, formData: FormData): Promise<FormState> {
@@ -180,8 +181,8 @@ export async function saveExpense(_prev: FormState, formData: FormData): Promise
     if (updated.length === 0) return { error: "This expense no longer exists." };
   }
 
-  revalidatePath("/", "layout");
-  redirect(id === null ? `/?saved=${savedId}` : "/expenses");
+  revalidatePath(routes.app, "layout");
+  redirect(id === null ? `${routes.app}?saved=${savedId}` : routes.expenses);
 }
 
 /**
@@ -190,13 +191,13 @@ export async function saveExpense(_prev: FormState, formData: FormData): Promise
  */
 export async function repeatExpense(formData: FormData) {
   await requireSession();
-  refuseInDemo("/");
+  refuseInDemo(routes.app);
   const id = Number(text(formData, "id"));
   const dateRaw = text(formData, "date");
   const date = isIsoDate(dateRaw) ? dateRaw : new Date().toISOString().slice(0, 10);
 
   const [source] = Number.isInteger(id) ? await db.select().from(expenses).where(eq(expenses.id, id)) : [];
-  if (!source) redirect("/");
+  if (!source) redirect(routes.app);
 
   const [leg] = await db
     .select({ id: legs.id })
@@ -227,27 +228,27 @@ export async function repeatExpense(formData: FormData) {
     })
     .returning({ id: expenses.id });
 
-  revalidatePath("/", "layout");
-  redirect(`/?saved=${row.id}&repeated=1`);
+  revalidatePath(routes.app, "layout");
+  redirect(`${routes.app}?saved=${row.id}&repeated=1`);
 }
 
 export async function deleteExpense(formData: FormData) {
   await requireSession();
-  refuseInDemo(text(formData, "back") === "add" ? "/" : "/expenses");
+  refuseInDemo(text(formData, "back") === "add" ? routes.app : routes.expenses);
   const id = Number(text(formData, "id"));
   if (Number.isInteger(id)) {
     await db.delete(expenses).where(eq(expenses.id, id));
   }
-  revalidatePath("/", "layout");
+  revalidatePath(routes.app, "layout");
   // Undoing a repeat on the Add screen stays on the Add screen.
-  if (text(formData, "back") === "add") redirect("/");
+  if (text(formData, "back") === "add") redirect(routes.app);
   // A delete from the list keeps the filters that were in use.
   const query = new URLSearchParams();
   for (const key of ["category", "country"]) {
     const value = text(formData, key);
     if (value) query.set(key, value);
   }
-  redirect(query.size > 0 ? `/expenses?${query}` : "/expenses");
+  redirect(query.size > 0 ? `${routes.expenses}?${query}` : routes.expenses);
 }
 
 function readLeg(formData: FormData) {
@@ -282,9 +283,9 @@ export async function saveLeg(_prev: FormState, formData: FormData): Promise<For
   } else {
     await db.insert(legs).values(leg.values);
   }
-  revalidatePath("/", "layout");
+  revalidatePath(routes.app, "layout");
   // The walkthrough carries on to its last step.
-  redirect(text(formData, "from") === "setup" ? "/setup?step=done" : "/trip");
+  redirect(text(formData, "from") === "setup" ? `${routes.setup}?step=done` : routes.trip);
 }
 
 const toDay = (iso: string) => Math.round(Date.parse(`${iso}T00:00:00Z`) / 86_400_000);
@@ -299,7 +300,7 @@ const fromDay = (day: number) => new Date(day * 86_400_000).toISOString().slice(
 export async function reorderLegs(ids: number[]) {
   await requireSession();
   // The list is drawn again in its saved order.
-  if (DEMO_MODE) return revalidatePath("/trip");
+  if (DEMO_MODE) return revalidatePath(routes.trip);
   if (!Array.isArray(ids) || !ids.every((id) => Number.isInteger(id))) return;
 
   await db.transaction(async (tx) => {
@@ -326,35 +327,35 @@ export async function reorderLegs(ids: number[]) {
       }
     }
   });
-  revalidatePath("/", "layout");
+  revalidatePath(routes.app, "layout");
 }
 
 /** Expenses of a deleted leg stay, as "not tied to a leg". */
 export async function deleteLeg(formData: FormData) {
   await requireSession();
-  refuseInDemo("/trip");
+  refuseInDemo(routes.trip);
   const id = Number(text(formData, "id"));
   if (Number.isInteger(id)) {
     await db.delete(legs).where(eq(legs.id, id));
   }
-  revalidatePath("/", "layout");
-  redirect("/trip");
+  revalidatePath(routes.app, "layout");
+  redirect(routes.trip);
 }
 
 export async function createShareLink() {
   await requireSession();
-  refuseInDemo("/trip");
+  refuseInDemo(routes.trip);
   // 192 random bits, so a link cannot be guessed.
   await db.insert(shareLinks).values({ token: randomBytes(24).toString("base64url") });
-  revalidatePath("/trip");
+  revalidatePath(routes.trip);
 }
 
 export async function revokeShareLink(formData: FormData) {
   await requireSession();
-  refuseInDemo("/trip");
+  refuseInDemo(routes.trip);
   const id = Number(text(formData, "id"));
   if (Number.isInteger(id)) {
     await db.delete(shareLinks).where(eq(shareLinks.id, id));
   }
-  revalidatePath("/trip");
+  revalidatePath(routes.trip);
 }

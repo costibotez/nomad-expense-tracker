@@ -122,7 +122,7 @@ Nine months on the road through nine countries means nine currencies. Every one 
 - **One password** protects every page and every data route. The only exception is a share link you created yourself
 - Your data lives in your own Postgres database and nowhere else
 - No analytics, no trackers and no third party accounts. The only outside requests are the exchange rate lookups, which carry a currency and a date and nothing about you
-- Search engines are told not to index the site
+- Search engines can index the public landing page; the tracker and share views request no indexing
 - The NomadWealth links in the app are plain links. Nothing is sent to NomadWealth unless you tap one
 
 ### 📱 Feels like an app
@@ -207,17 +207,19 @@ npm run dev
 - **Exchange rates** come from the fawazahmed0 currency data set, first through jsDelivr and then through Cloudflare Pages, with open.er-api.com as the last fallback. See `lib/rates.ts`.
 
 ```
-proxy.ts               Password gate in front of every page and data route
+proxy.ts               Password gate for the tracker and data routes
 app/
-  (app)/               Add, Expenses, Overview and Trip screens
+  page.tsx             Public landing page
+  app/(shell)/         Add, Expenses, Overview and Trip screens
   share/[token]/       Public read-only totals behind a share link
-  login/               Sign-in page
-  setup/               First run walkthrough: your name and your first trip leg
+  app/login/           Sign-in page
+  app/setup/           First run walkthrough: your name and your first trip leg
   api/rate/            Rate lookup used by the expense form
   api/export/          Spreadsheet export
   actions.ts           Server actions: sign in, expenses, legs and share links
 components/            Card layout pieces, card carousel, expense form, overview, charts, navigation
 lib/
+  routes.ts            Shared tracker routes
   db/                  Drizzle schema and database client
   rates.ts             Exchange rate lookup with three sources
   constants.ts         Categories and currencies
@@ -243,12 +245,12 @@ Environment variables:
 
 ### Demo mode
 
-The live demo at [expenses.nomadwealth.app](https://expenses.nomadwealth.app) is this same code with `DEMO_MODE=1`. In demo mode:
+The landing page already links to a small demo at `/demo` that runs in the browser with a handful of sample expenses. Demo mode is the bigger sibling: the real tracker under `/app`, opened for everyone on a separate deployment. The live demo at [expenses.nomadwealth.app](https://expenses.nomadwealth.app) is this same code with `DEMO_MODE=1`. In demo mode:
 
-- There is **no password**. Anyone can open every screen
+- There is **no password**. Anyone can open every screen under `/app`
 - The build fills an **empty** database with the sample trip and invented expenses. A database that already has data is left alone
 - **Nothing can be changed.** Every action that would add, edit or delete data is refused with a notice
-- Search engines may index the site
+- Search engines may index the tracker as well as the landing page
 
 Never set `DEMO_MODE` on an install that holds your own data, because it removes the password. Use a separate project and a separate database for a demo. The sample trip is dated around the day it was added. To refresh it, empty the demo database and deploy again.
 
