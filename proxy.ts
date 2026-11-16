@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { isValidSession, SESSION_COOKIE } from "@/lib/auth";
+import { DEMO_MODE } from "@/lib/demo";
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const signedIn = isValidSession(request.cookies.get(SESSION_COOKIE)?.value);
+  // The live demo has no password. Its server actions refuse every change.
+  const signedIn = DEMO_MODE || isValidSession(request.cookies.get(SESSION_COOKIE)?.value);
 
   if (pathname === "/login") {
     return signedIn ? NextResponse.redirect(new URL("/", request.url)) : NextResponse.next();
@@ -20,6 +22,6 @@ export function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|manifest.webmanifest|icon-192.png|icon-512.png|apple-icon.png|icon.svg).*)",
+    "/((?!_next/static|_next/image|favicon.ico|manifest.webmanifest|icon-192.png|icon-512.png|apple-icon.png|icon.svg|nomadwealth-mark.png).*)",
   ],
 };

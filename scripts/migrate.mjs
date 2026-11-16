@@ -3,6 +3,7 @@
 import pg from "pg";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { migrate } from "drizzle-orm/node-postgres/migrator";
+import { seedDemo } from "./demo-seed.mjs";
 
 const url = process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL;
 
@@ -17,6 +18,8 @@ await client.connect();
 try {
   await migrate(drizzle({ client }), { migrationsFolder: "./drizzle" });
   console.log("[migrate] Migrations applied.");
+  // The public live demo fills an empty database with a sample trip.
+  if (process.env.DEMO_MODE === "1") await seedDemo(client);
 } finally {
   await client.end();
 }

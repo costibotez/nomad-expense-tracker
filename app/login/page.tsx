@@ -1,3 +1,4 @@
+import { FamilyMark } from "@/components/family-mark";
 import { LoginForm } from "@/components/login-form";
 import { TripCard } from "@/components/ui";
 
@@ -17,6 +18,7 @@ export default function LoginPage() {
           <p className="mt-1 text-hero-muted">Enter your password to continue.</p>
         </div>
         <LoginForm />
+        <FamilyMark className="justify-center text-hero-muted" />
       </div>
     </main>
   );
