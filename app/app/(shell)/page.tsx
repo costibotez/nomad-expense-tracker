@@ -26,11 +26,11 @@ export default async function AddPage({ searchParams }: PageProps<"/app">) {
       <ExpenseForm key={saved?.id ?? "new"} legs={legs} serverToday={serverToday()} title="Add expense" />
 
       {saved && (
-        <div role="status" className="card tabular flex items-center justify-between gap-3 px-5 py-3 text-sm">
+        <div role="status" className="card flex items-center justify-between gap-3 px-5 py-3 text-sm">
           <p>
             {repeated ? "Added again" : "Saved"} {categoryOf(saved.category).label.toLowerCase()}:{" "}
-            <strong>{formatAmount(Number(saved.amount), saved.currency)}</strong>
-            {saved.currency !== "EUR" && ` (${formatEuro(Number(saved.amountEur))})`}
+            <strong className="tabular">{formatAmount(Number(saved.amount), saved.currency)}</strong>
+            {saved.currency !== "EUR" && <span className="tabular"> ({formatEuro(Number(saved.amountEur))})</span>}
           </p>
           {repeated && (
             <form action={deleteExpense}>

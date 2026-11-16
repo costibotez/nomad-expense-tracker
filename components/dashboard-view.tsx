@@ -256,7 +256,7 @@ export async function DashboardView({
             aria-valuemax={scopeDays}
             aria-valuenow={scopeElapsed}
           >
-            <div className="h-full rounded-full bg-accent" style={{ width: `${(scopeElapsed / scopeDays) * 100}%` }} />
+            <div className="h-full rounded-full bg-brand" style={{ width: `${(scopeElapsed / scopeDays) * 100}%` }} />
           </div>
         )}
         <p className="tabular mt-2 text-xs text-muted">
@@ -339,17 +339,17 @@ export async function DashboardView({
                 {scopeLegs
                   .filter((l) => l.total > 0 || l.elapsed > 0)
                   .map((l) => (
-                    <li key={l.id} className="tabular flex items-center gap-3 py-3 first:pt-0 last:pb-0">
+                    <li key={l.id} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
                       <span className="min-w-0 flex-1">
                         <span className="block truncate text-sm">
                           {l.flag} {l.cities}
                         </span>
-                        <span className="block text-xs text-muted">
+                        <span className="tabular block text-xs text-muted">
                           {formatShortDate(l.startDate)} to {formatShortDate(l.endDate)}
                           {l.elapsed > 0 && ` · ${formatEuro(l.total / l.elapsed)} per day`}
                         </span>
                       </span>
-                      <span className="text-sm font-semibold">{formatEuro(l.total)}</span>
+                      <span className="tabular text-sm font-semibold">{formatEuro(l.total)}</span>
                     </li>
                   ))}
               </ul>

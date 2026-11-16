@@ -9,6 +9,7 @@ import { redirect } from "next/navigation";
 import { isCorrectPassword, isValidSession, SESSION_COOKIE, sessionToken } from "@/lib/auth";
 import { CATEGORY_IDS } from "@/lib/constants";
 import { db } from "@/lib/db";
+import { DEMO_MODE, DEMO_NOTICE } from "@/lib/demo";
 import { expenses, legs, settings, shareLinks } from "@/lib/db/schema";
 import { isIsoDate } from "@/lib/format";
 import { countryByCode, isCurrencyCode } from "@/lib/places";
@@ -18,6 +19,8 @@ import sampleTrip from "@/lib/sample-trip.json";
 export type FormState = { error?: string } | undefined;
 
 async function requireSession() {
+  // The live demo has no password. Every action below refuses to change data instead.
+  if (DEMO_MODE) return;
   const store = await cookies();
   if (!isValidSession(store.get(SESSION_COOKIE)?.value)) redirect(routes.login);
 }
@@ -34,7 +37,17 @@ function parseNumber(raw: string) {
   return Number(cleaned);
 }
 
+/** In the live demo an action that would change data sends the visitor back with a notice. */
+function refuseInDemo(path: string): void {
+  if (!DEMO_MODE) return;
+  const [base, query] = path.split("?");
+  const params = new URLSearchParams(query);
+  params.set("demo", "blocked");
+  redirect(`${base}?${params}`);
+}
+
 export async function login(_prev: FormState, formData: FormData): Promise<FormState> {
+  if (DEMO_MODE) redirect(routes.app);
   const token = sessionToken();
   if (!token) {
     return { error: "No password is configured. Set APP_PASSWORD in the project settings." };
@@ -60,6 +73,7 @@ export async function login(_prev: FormState, formData: FormData): Promise<FormS
 /** Step one of the walkthrough. An empty name is fine. */
 export async function saveSetupName(formData: FormData) {
   await requireSession();
+  if (DEMO_MODE) redirect(routes.app);
   const name = text(formData, "name").slice(0, 40);
   await db.insert(settings).values({ id: 1, name }).onConflictDoUpdate({ target: settings.id, set: { name } });
   redirect(`${routes.setup}?step=trip`);
@@ -68,6 +82,7 @@ export async function saveSetupName(formData: FormData) {
 /** Fills an empty trip with the sample itinerary, to look around before planning your own. */
 export async function loadSampleTrip() {
   await requireSession();
+  if (DEMO_MODE) redirect(routes.app);
   const existing = await db.select({ id: legs.id }).from(legs).limit(1);
   if (existing.length === 0) await db.insert(legs).values(sampleTrip);
   revalidatePath(routes.app, "layout");
@@ -77,6 +92,7 @@ export async function loadSampleTrip() {
 /** Ends the walkthrough, whether its steps were filled in or skipped. */
 export async function finishSetup() {
   await requireSession();
+  if (DEMO_MODE) redirect(routes.app);
   const setupDoneAt = new Date();
   await db
     .insert(settings)
@@ -87,6 +103,7 @@ export async function finishSetup() {
 }
 
 export async function logout() {
+  if (DEMO_MODE) redirect(routes.app);
   const store = await cookies();
   store.delete(SESSION_COOKIE);
   redirect(routes.login);
@@ -94,6 +111,7 @@ export async function logout() {
 
 export async function saveExpense(_prev: FormState, formData: FormData): Promise<FormState> {
   await requireSession();
+  if (DEMO_MODE) return { error: DEMO_NOTICE };
 
   const idRaw = text(formData, "id");
   const id = idRaw ? Number(idRaw) : null;
@@ -173,6 +191,7 @@ export async function saveExpense(_prev: FormState, formData: FormData): Promise
  */
 export async function repeatExpense(formData: FormData) {
   await requireSession();
+  refuseInDemo(routes.app);
   const id = Number(text(formData, "id"));
   const dateRaw = text(formData, "date");
   const date = isIsoDate(dateRaw) ? dateRaw : new Date().toISOString().slice(0, 10);
@@ -215,6 +234,7 @@ export async function repeatExpense(formData: FormData) {
 
 export async function deleteExpense(formData: FormData) {
   await requireSession();
+  refuseInDemo(text(formData, "back") === "add" ? routes.app : routes.expenses);
   const id = Number(text(formData, "id"));
   if (Number.isInteger(id)) {
     await db.delete(expenses).where(eq(expenses.id, id));
@@ -250,6 +270,7 @@ function readLeg(formData: FormData) {
 
 export async function saveLeg(_prev: FormState, formData: FormData): Promise<FormState> {
   await requireSession();
+  if (DEMO_MODE) return { error: DEMO_NOTICE };
   const idRaw = text(formData, "id");
   const leg = readLeg(formData);
   if ("error" in leg) return { error: leg.error };
@@ -278,6 +299,8 @@ const fromDay = (day: number) => new Date(day * 86_400_000).toISOString().slice(
  */
 export async function reorderLegs(ids: number[]) {
   await requireSession();
+  // The list is drawn again in its saved order.
+  if (DEMO_MODE) return revalidatePath(routes.trip);
   if (!Array.isArray(ids) || !ids.every((id) => Number.isInteger(id))) return;
 
   await db.transaction(async (tx) => {
@@ -310,6 +333,7 @@ export async function reorderLegs(ids: number[]) {
 /** Expenses of a deleted leg stay, as "not tied to a leg". */
 export async function deleteLeg(formData: FormData) {
   await requireSession();
+  refuseInDemo(routes.trip);
   const id = Number(text(formData, "id"));
   if (Number.isInteger(id)) {
     await db.delete(legs).where(eq(legs.id, id));
@@ -320,6 +344,7 @@ export async function deleteLeg(formData: FormData) {
 
 export async function createShareLink() {
   await requireSession();
+  refuseInDemo(routes.trip);
   // 192 random bits, so a link cannot be guessed.
   await db.insert(shareLinks).values({ token: randomBytes(24).toString("base64url") });
   revalidatePath(routes.trip);
@@ -327,6 +352,7 @@ export async function createShareLink() {
 
 export async function revokeShareLink(formData: FormData) {
   await requireSession();
+  refuseInDemo(routes.trip);
   const id = Number(text(formData, "id"));
   if (Number.isInteger(id)) {
     await db.delete(shareLinks).where(eq(shareLinks.id, id));

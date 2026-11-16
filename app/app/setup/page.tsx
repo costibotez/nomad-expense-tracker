@@ -3,8 +3,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { finishSetup, loadSampleTrip, saveSetupName } from "@/app/actions";
+import { FamilyMark } from "@/components/family-mark";
 import { LegForm } from "@/components/leg-form";
 import { TripCard } from "@/components/ui";
+import { DEMO_MODE } from "@/lib/demo";
 import { COUNTRY_OPTIONS, CURRENCY_OPTIONS } from "@/lib/places";
 import { getLegs, getSettings, serverToday } from "@/lib/queries";
 
@@ -13,14 +15,14 @@ export const metadata: Metadata = { title: "Set up Nomad Expenses" };
 const STEPS = ["name", "trip", "done"] as const;
 type Step = (typeof STEPS)[number];
 
-const primaryButton = "flex min-h-14 w-full items-center justify-center rounded-full bg-white font-semibold text-[#0a0a0a]";
+const primaryButton = "flex min-h-14 w-full items-center justify-center rounded-full bg-brand font-semibold text-brand-ink";
 const skipLink = "flex min-h-11 items-center justify-center text-sm text-hero-muted underline underline-offset-4";
 
 /** The first run walkthrough: your name, your first trip leg, then into the app. Every step can be skipped. */
 export default async function SetupPage({ searchParams }: PageProps<"/app/setup">) {
   const params = await searchParams;
   const [settings, legs] = await Promise.all([getSettings(), getLegs()]);
-  if (settings?.setupDoneAt) redirect(routes.app);
+  if (DEMO_MODE || settings?.setupDoneAt) redirect(routes.app);
 
   const step: Step = STEPS.find((s) => s === params.step) ?? "name";
   const position = STEPS.indexOf(step);
@@ -78,6 +80,7 @@ export default async function SetupPage({ searchParams }: PageProps<"/app/setup"
                 Skip this step
               </Link>
             </form>
+            <FamilyMark className="justify-center text-hero-muted" />
           </div>
         )}
 

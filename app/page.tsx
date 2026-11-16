@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowDown, ArrowRight, ArrowUpRight, Check, Globe2, LockKeyhole, Map, Plus, ReceiptText } from "lucide-react";
 import { CookieNotice, CookiePreferences } from "@/components/cookie-notice";
 import { TripCard } from "@/components/ui";
+import { FAMILY_URL } from "@/lib/brand";
 import { routes } from "@/lib/routes";
 import dashboard from "@/docs/screenshots/dashboard.png";
 import add from "@/docs/screenshots/add.png";
@@ -59,7 +60,7 @@ export default function HomePage() {
         <section id="faq" className="faq-section section-wrap"><div><p className="eyebrow">GOOD TO KNOW</p><h2>A few things<br /><span>you might ask.</span></h2></div><div className="faq-list"><details><summary>How does currency conversion work?<span>+</span></summary><p>The app looks up the exchange rate for the date of each expense and saves it, so past totals stay consistent. You can also enter a rate manually.</p></details><details><summary>Can I share my trip?<span>+</span></summary><p>Yes. Create a read-only link from the Trip screen to share totals and charts without sharing individual expenses or notes.</p></details><details><summary>Can I use it on my phone?<span>+</span></summary><p>Yes. It is designed for mobile and can be added to your home screen for a full-screen experience.</p></details><details><summary>How do I access the tracker?<span>+</span></summary><p>Try the demo without signing in, or deploy your own free copy and protect it with a password you choose.</p></details></div></section>
         <section className="final-cta"><p className="eyebrow">READY WHEN YOU ARE</p><h2>Go somewhere.<br /><span>We’ll keep count.</span></h2><p>Set up your own copy and take it wherever you go.</p><a className="landing-button landing-button-light" href="https://github.com/costibotez/nomad-expense-tracker#-quick-start-under-5-minutes">Get the tracker <ArrowRight size={18} /></a></section>
       </main>
-      <footer className="landing-footer"><span>✳ &nbsp; NOMAD EXPENSES</span><span>Made by <a href="https://www.nomad-developer.co.uk/">Nomad Developer</a></span><div className="footer-links"><Link href="/legal/privacy">Privacy</Link><Link href="/legal/cookies">Cookies</Link><Link href="/legal/terms">Terms</Link><Link href="/legal/refunds">Refunds</Link><Link href="/legal/license">Licence</Link><Link href="/security">Security</Link><a href="mailto:contact@nomad-developer.co.uk">Contact</a><CookiePreferences /><a href="#">Back to top ↑</a></div></footer>
+      <footer className="landing-footer"><span>✳ &nbsp; NOMAD EXPENSES</span><span>Made by <a href="https://www.nomad-developer.co.uk/">Nomad Developer</a> · Part of <a href={FAMILY_URL}>NomadWealth</a></span><div className="footer-links"><Link href="/legal/privacy">Privacy</Link><Link href="/legal/cookies">Cookies</Link><Link href="/legal/terms">Terms</Link><Link href="/legal/refunds">Refunds</Link><Link href="/legal/license">Licence</Link><Link href="/security">Security</Link><a href="mailto:contact@nomad-developer.co.uk">Contact</a><CookiePreferences /><a href="#">Back to top ↑</a></div></footer>
       <CookieNotice />
     </div>
   );

@@ -289,7 +289,7 @@ export function ExpenseForm({
       <button
         type="submit"
         disabled={pending}
-        className="min-h-14 rounded-full bg-accent text-base font-semibold text-accent-ink disabled:opacity-60"
+        className="min-h-14 rounded-full bg-brand text-base font-semibold text-brand-ink disabled:opacity-60"
       >
         {pending ? "Saving" : expense ? "Save changes" : "Add expense"}
       </button>

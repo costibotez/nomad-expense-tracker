@@ -3,7 +3,7 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Nomad Expenses",
+    name: "Nomad Expenses by NomadWealth",
     short_name: "Expenses",
     description: "Track travel spending across countries and currencies.",
     start_url: routes.app,
