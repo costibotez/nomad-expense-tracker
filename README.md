@@ -1,8 +1,13 @@
 <p align="center">
-  <img src="docs/banner.png" alt="Nomad Expenses. Every currency on the road. One clear total in euro." />
+  <img src="docs/banner.png" alt="Nomad Expenses by NomadWealth. Every currency on the road. One clear total in euro." />
 </p>
 
 <h1 align="center">Nomad Expenses</h1>
+
+<p align="center">
+  <img src="public/nomadwealth-mark.png" alt="" width="16" height="16" />
+  by <a href="https://www.nomadwealth.app/expenses"><strong>NomadWealth</strong></a>
+</p>
 
 <p align="center">
   <strong>Every currency on the road. One clear total in euro.</strong>
@@ -24,6 +29,15 @@
 </p>
 
 <p align="center">
+  <a href="https://expenses.nomadwealth.app"><strong>Try the live demo</strong></a> ·
+  <a href="https://www.nomadwealth.app/expenses">Product page</a>
+</p>
+
+<p align="center">
+  <a href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fcostibotez%2Fnomad-expense-tracker&project-name=nomad-expenses&repository-name=nomad-expenses&env=APP_PASSWORD&envDescription=The%20password%20you%20type%20to%20open%20the%20app.%20Choose%20a%20long%20one.&stores=%5B%7B%22type%22%3A%22integration%22%2C%22integrationSlug%22%3A%22neon%22%2C%22productSlug%22%3A%22neon%22%7D%5D"><img src="https://vercel.com/button" alt="Deploy with Vercel" /></a>
+</p>
+
+<p align="center">
   <a href="#-quick-start-under-5-minutes">Quick start</a> ·
   <a href="#what-the-app-includes">Features</a> ·
   <a href="#screenshots">Screenshots</a> ·
@@ -40,6 +54,12 @@
 </p>
 
 ---
+
+## Part of NomadWealth
+
+Nomad Expenses is the travel spending app in the [NomadWealth](https://www.nomadwealth.app) family. NomadWealth is a self hosted cockpit for your whole net worth. Nomad Expenses is the small app you open ten times a day on the road. Both follow the same rule: the app runs on your own Vercel, the data lives in your own database and nobody else can see it.
+
+Nomad Expenses is free and needs no license key.
 
 ## Why Nomad Expenses exists
 
@@ -103,13 +123,19 @@ Nine months on the road through nine countries means nine currencies. Every one 
 - Your data lives in your own Postgres database and nowhere else
 - No analytics, no trackers and no third party accounts. The only outside requests are the exchange rate lookups, which carry a currency and a date and nothing about you
 - Search engines are told not to index the site
+- The NomadWealth links in the app are plain links. Nothing is sent to NomadWealth unless you tap one
 
 ### 📱 Feels like an app
 - Add it to your phone home screen and it opens full screen with its own icon
 - Large touch targets and a floating navigation bar made for one-handed use
 - A monochrome card design with line icons, built to look at home next to a banking app
+- One accent: the NomadWealth orange marks the main button, the current trip leg and the progress bar. Amounts are set in Geist Mono
 
 ## ⚡ Quick start (under 5 minutes)
+
+The fast way: press [Deploy with Vercel](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fcostibotez%2Fnomad-expense-tracker&project-name=nomad-expenses&repository-name=nomad-expenses&env=APP_PASSWORD&envDescription=The%20password%20you%20type%20to%20open%20the%20app.%20Choose%20a%20long%20one.&stores=%5B%7B%22type%22%3A%22integration%22%2C%22integrationSlug%22%3A%22neon%22%2C%22productSlug%22%3A%22neon%22%7D%5D). Vercel copies the repository, adds a Neon Postgres database and asks for `APP_PASSWORD`. Then continue at step 5.
+
+The manual way:
 
 1. Import this repository as a new project on [Vercel](https://vercel.com/new).
 2. In the project, open **Storage** and add a **Neon Postgres** database. This sets `DATABASE_URL` for you.
@@ -197,8 +223,11 @@ lib/
   constants.ts         Categories and currencies
   format.ts            Money and date formatting
   sample-trip.json     The sample trip offered in the walkthrough
+  brand.ts             Product names and the link to NomadWealth
+  demo.ts              The demo mode switch
 scripts/
   migrate.mjs          Migrations
+  demo-seed.mjs        Sample trip and expenses for the live demo
 drizzle/               Generated SQL migrations
 docs/                  Banner and screenshots for this page
 ```
@@ -210,6 +239,18 @@ Environment variables:
 | `DATABASE_URL` | Postgres connection string. The Neon integration on Vercel sets it |
 | `DATABASE_URL_UNPOOLED` | Optional direct connection, preferred for migrations when present |
 | `APP_PASSWORD` | The password you type to open the app. Changing it signs every device out |
+| `DEMO_MODE` | Leave this unset. `1` turns the deployment into a public demo, see below |
+
+### Demo mode
+
+The live demo at [expenses.nomadwealth.app](https://expenses.nomadwealth.app) is this same code with `DEMO_MODE=1`. In demo mode:
+
+- There is **no password**. Anyone can open every screen
+- The build fills an **empty** database with the sample trip and invented expenses. A database that already has data is left alone
+- **Nothing can be changed.** Every action that would add, edit or delete data is refused with a notice
+- Search engines may index the site
+
+Never set `DEMO_MODE` on an install that holds your own data, because it removes the password. Use a separate project and a separate database for a demo. The sample trip is dated around the day it was added. To refresh it, empty the demo database and deploy again.
 
 Useful scripts:
 
@@ -230,6 +271,6 @@ Where to change common things: categories and currencies live in `lib/constants.
 </p>
 
 <p align="center">
-  Built and maintained by <a href="https://www.nomad-developer.co.uk/">Costin Botez</a> at <a href="https://www.nomad-developer.co.uk/">Nomad Developer</a> · <a href="https://www.instagram.com/costinbotez/">@costinbotez</a><br />
+  Part of <a href="https://www.nomadwealth.app">NomadWealth</a>. Built and maintained by <a href="https://www.nomad-developer.co.uk/">Costin Botez</a> at <a href="https://www.nomad-developer.co.uk/">Nomad Developer</a> · <a href="https://www.instagram.com/costinbotez/">@costinbotez</a><br />
   Made for a nine month journey from Chiang Mai to Almaty.
 </p>
