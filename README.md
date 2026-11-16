@@ -29,7 +29,7 @@
 </p>
 
 <p align="center">
-  <a href="https://expenses.nomadwealth.app"><strong>Try the live demo</strong></a> ·
+  <a href="https://expenses.nomadwealth.app/app"><strong>Try the live demo</strong></a> ·
   <a href="https://www.nomadwealth.app/expenses">Product page</a>
 </p>
 
@@ -245,7 +245,7 @@ Environment variables:
 
 ### Demo mode
 
-The landing page already links to a small demo at `/demo` that runs in the browser with a handful of sample expenses. Demo mode is the bigger sibling: the real tracker under `/app`, opened for everyone on a separate deployment. The live demo at [expenses.nomadwealth.app](https://expenses.nomadwealth.app) is this same code with `DEMO_MODE=1`. In demo mode:
+The landing page already links to a small demo at `/demo` that runs in the browser with a handful of sample expenses. Demo mode is the bigger sibling: the real tracker under `/app`, opened for everyone on a separate deployment. The live demo at [expenses.nomadwealth.app/app](https://expenses.nomadwealth.app/app) is this same code with `DEMO_MODE=1`. In demo mode:
 
 - There is **no password**. Anyone can open every screen under `/app`
 - The build fills an **empty** database with the sample trip and invented expenses. A database that already has data is left alone
