@@ -1,11 +1,18 @@
 import type { Metadata, Viewport } from "next";
+import { GeistMono } from "geist/font/mono";
+import { GeistSans } from "geist/font/sans";
+import { FULL_NAME } from "@/lib/brand";
+import { DEMO_MODE } from "@/lib/demo";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Nomad Expenses",
-  description: "Track travel spending across countries and currencies.",
+  title: DEMO_MODE ? `${FULL_NAME}: live demo` : FULL_NAME,
+  description: DEMO_MODE
+    ? "Tap through a sample trip. Nomad Expenses tracks travel spending across countries and currencies on your own Vercel and Neon."
+    : "Track travel spending across countries and currencies.",
   appleWebApp: { capable: true, title: "Expenses", statusBarStyle: "black-translucent" },
-  robots: { index: false, follow: false },
+  // A personal install stays out of search engines. Only the public demo is listed.
+  robots: { index: DEMO_MODE, follow: DEMO_MODE },
 };
 
 export const viewport: Viewport = {
@@ -20,7 +27,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className="h-full antialiased">
+    <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable} h-full antialiased`}>
       <body className="min-h-full">{children}</body>
     </html>
   );

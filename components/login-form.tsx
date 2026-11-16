@@ -26,7 +26,7 @@ export function LoginForm() {
       <button
         type="submit"
         disabled={pending}
-        className="min-h-14 rounded-full bg-white font-semibold text-[#0a0a0a] disabled:opacity-60"
+        className="min-h-14 rounded-full bg-brand font-semibold text-brand-ink disabled:opacity-60"
       >
         {pending ? "Signing in" : "Sign in"}
       </button>

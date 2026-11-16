@@ -1,6 +1,7 @@
 import { desc, sql } from "drizzle-orm";
 import { Download, GripVertical, Link2, LogOut, Plus } from "lucide-react";
 import { createShareLink, logout, reorderLegs } from "@/app/actions";
+import { FamilyMark } from "@/components/family-mark";
 import { LegForm } from "@/components/leg-form";
 import { ShareLinkRow } from "@/components/share-link-row";
 import { SortableList } from "@/components/sortable-list";
@@ -8,6 +9,7 @@ import { Hero, TripCard } from "@/components/ui";
 import { db } from "@/lib/db";
 import { expenses, shareLinks } from "@/lib/db/schema";
 import { daysBetween, formatEuro, formatShortDate } from "@/lib/format";
+import { DEMO_MODE } from "@/lib/demo";
 import { COUNTRY_OPTIONS, CURRENCY_OPTIONS, currencyName } from "@/lib/places";
 import { getLegs, serverToday } from "@/lib/queries";
 
@@ -93,7 +95,7 @@ export default async function TripPage() {
                   <span
                     aria-hidden
                     className={`flex size-11 shrink-0 items-center justify-center rounded-xl border text-xl ${
-                      isCurrent ? "border-accent" : "border-line"
+                      isCurrent ? "border-brand" : "border-line"
                     }`}
                   >
                     {leg.flag}
@@ -102,7 +104,7 @@ export default async function TripPage() {
                     <span className="flex items-center gap-2 text-sm font-semibold">
                       {leg.country}
                       {isCurrent && (
-                        <span className="rounded-full bg-accent px-2 py-0.5 text-[10px] text-accent-ink">Now</span>
+                        <span className="rounded-full bg-brand px-2 py-0.5 text-[10px] text-brand-ink">Now</span>
                       )}
                     </span>
                     <span className="block truncate text-xs text-muted">{leg.cities}</span>
@@ -192,12 +194,15 @@ export default async function TripPage() {
           <Download size={18} aria-hidden />
           Export all expenses as a spreadsheet
         </a>
-        <form action={logout}>
-          <button className="flex min-h-14 w-full items-center justify-center gap-2 rounded-full font-medium text-muted">
-            <LogOut size={18} aria-hidden />
-            Sign out
-          </button>
-        </form>
+        {!DEMO_MODE && (
+          <form action={logout}>
+            <button className="flex min-h-14 w-full items-center justify-center gap-2 rounded-full font-medium text-muted">
+              <LogOut size={18} aria-hidden />
+              Sign out
+            </button>
+          </form>
+        )}
+        <FamilyMark text="Part of NomadWealth" link className="min-h-11 justify-center text-muted" />
       </div>
     </div>
   );
