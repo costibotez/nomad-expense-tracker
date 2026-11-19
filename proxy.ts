@@ -7,6 +7,8 @@ import { routes } from "@/lib/routes";
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   // The live demo has no password. Its server actions refuse every change.
+  // That also lets the demo guide's /api/demo-agent routes through; they 404
+  // on their own unless the guide is switched on (lib/demo.ts DEMO_AGENT).
   const signedIn = DEMO_MODE || isValidSession(request.cookies.get(SESSION_COOKIE)?.value);
   if (pathname === routes.login) {
     return signedIn ? NextResponse.redirect(new URL(routes.app, request.url)) : NextResponse.next();
