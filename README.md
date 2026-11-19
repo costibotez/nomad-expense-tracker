@@ -217,6 +217,7 @@ app/
   api/rate/            Rate lookup used by the expense form
   api/export/          Spreadsheet export
   actions.ts           Server actions: sign in, expenses, legs and share links
+  api/demo-agent/      The live demo guide's chat and lead endpoints
 components/            Card layout pieces, card carousel, expense form, overview, charts, navigation
 lib/
   routes.ts            Shared tracker routes
@@ -227,6 +228,7 @@ lib/
   sample-trip.json     The sample trip offered in the walkthrough
   brand.ts             Product names and the link to NomadWealth
   demo.ts              The demo mode switch
+  demo-agent/          The live demo's AI guide: agent, qualification score, limits
 scripts/
   migrate.mjs          Migrations
   demo-seed.mjs        Sample trip and expenses for the live demo
@@ -242,6 +244,12 @@ Environment variables:
 | `DATABASE_URL_UNPOOLED` | Optional direct connection, preferred for migrations when present |
 | `APP_PASSWORD` | The password you type to open the app. Changing it signs every device out |
 | `DEMO_MODE` | Leave this unset. `1` turns the deployment into a public demo, see below |
+| `NEXT_PUBLIC_DEMO_AGENT` | Live demo only. `1` (with `DEMO_MODE=1`) adds the AI demo guide, see below |
+| `AI_GATEWAY_API_KEY` | Live demo only, local development. Vercel AI Gateway key for the guide. On Vercel, OIDC is used instead |
+| `DEMO_AGENT_MODEL` | Optional. Gateway model id for the guide. Default `anthropic/claude-haiku-5.5` |
+| `DEMO_AGENT_LEAD_TO` | Optional. Where the guide emails new leads (email plus structured answers, never the chat) |
+| `DEMO_AGENT_FROM_EMAIL` | Optional. From address for those lead emails, on a domain verified in Resend |
+| `RESEND_API_KEY` | Optional. Resend key for the lead emails. Without all three lead settings, no email is sent |
 
 ### Demo mode
 
@@ -251,6 +259,16 @@ The landing page already links to a small demo at `/demo` that runs in the brows
 - The build fills an **empty** database with the sample trip and invented expenses. A database that already has data is left alone
 - **Nothing can be changed.** Every action that would add, edit or delete data is refused with a notice
 - Search engines may index the tracker as well as the landing page
+
+### AI demo guide
+
+The live demo can also show an AI guide: a chat panel on the `/app` screens that answers questions about the app from this README's facts and the sample trip, opens the matching screen while it explains, asks one short question per reply to learn about the visitor's trip, and then offers a card to deploy a free copy, join the mailing list, or, for visitors who also hold investments or property, look at NomadWealth Pro. It needs both `DEMO_MODE=1` and `NEXT_PUBLIC_DEMO_AGENT=1`, so a personal install never shows it, never calls a model and never loads the bot check.
+
+- The model is Claude Haiku through Vercel AI Gateway (`lib/demo-agent/agent.ts`). The fit score comes from a plain, tested function (`lib/demo-agent/qualify.ts`), not from the model
+- Conversations are never stored. The lead email carries the visitor's email and structured answers only
+- `/api/demo-agent` has a per-IP limit, a 40-message and 1,000-character cap, a step and token cap, and Vercel BotID, which fails open. Set a spend limit on the gateway as the backstop
+- Voice uses the browser's own speech recognition and speech synthesis. The microphone is allowed on `/app` of the live demo only
+- Run `npm test` for the qualification and limit tests
 
 Never set `DEMO_MODE` on an install that holds your own data, because it removes the password. Use a separate project and a separate database for a demo. The sample trip is dated around the day it was added. To refresh it, empty the demo database and deploy again.
 
@@ -263,6 +281,8 @@ Useful scripts:
 | `npm run db:migrate` | Apply migrations |
 | `npm run db:generate` | Create a migration after a schema change |
 | `npm run lint` | Check the code with ESLint |
+| `npm run typecheck` | Check the types |
+| `npm test` | Run the unit tests |
 
 Where to change common things: categories and currencies live in `lib/constants.ts`.
 
